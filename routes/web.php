@@ -14,5 +14,23 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login.form');
+});
+
+Route::get('/login', 'Auth\LoginController@form')->name('login.form');
+Route::post('/login', 'Auth\LoginController@process')->name('login.process');
+Route::get("/register", 'Auth\RegisterController@form')->name('register.form');
+Route::post("/register", 'Auth\RegisterController@process')->name('register.process');
+Route::get("/logout", 'Auth\LoginController@logout')->name('logout');
+
+Route::prefix('admin')->name('a.')->group(function(){
+    Route::get('/', 'Admin\HomeController@index')->name('index');
+});
+Route::prefix('worker')->name('w.')->group(function(){
+    Route::get('/', 'Worker\HomeController@index')->name('index');
+});
+Route::prefix('student')->group(function(){
+    Route::get('/dashboard', function(){
+        return 'student dashboard';
+    })->name('s.dashboard');
 });
