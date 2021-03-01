@@ -1,4 +1,4 @@
-@extends('_partials.master')
+@extends('auth._partials.master')
 @section('lib_css')
 <link rel="stylesheet" href="/modules/jquery-selectric/selectric.css">
 @endsection
