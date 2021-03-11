@@ -8,17 +8,17 @@
         </div>
         <ul class="sidebar-menu">
             <li class="menu-header">Dashboard</li>
-            <li class="dropdown active">
+            <li class="dropdown {{Request::is('admin') ? 'active' : null}}">
                 <a href="#" class="nav-link"><i class="fas fa-fire"></i><span>Dashboard</span></a>
             </li>
             <li class="menu-header">Master</li>
-            <li class="dropdown">
+            <li class="dropdown {{Request::is('admin/*') ? 'active' : null}}">
                 <a href="#" class="nav-link has-dropdown"><i class="fas fa-database"></i><span>Master</span></a>
                 <ul class="dropdown-menu has-dropdown">
-                    <li><a href="#" class="nav-link"><i class="fas fa-users"></i><span>Petugas</span></a></li>
-                    <li><a href="#" class="nav-link"><i class="fas fa-users"></i><span>Siswa</span></a></li>
-                    <li><a href="#" class="nav-link"><i class="fas fa-users"></i><span>Kelas</span></a></li>
-                    <li><a href="#" class="nav-link"><i class="fas fa-users"></i><span>SPP</span></a></li>
+                    <li class="{{Request::is('admin/workers') ? 'active' : null}}"><a href="{{route('a.workers.index')}}" class="nav-link"><i class="fas fa-users"></i><span>Petugas</span></a></li>
+                    <li class="{{Request::is('admin/students') ? 'active' : null}}"><a href="{{route('a.students.index')}}" class="nav-link"><i class="fas fa-users"></i><span>Siswa</span></a></li>
+                    <li class="{{Request::is('admin/class') ? 'active' : null}}"><a href="{{route('a.class.index')}}" class="nav-link"><i class="fas fa-users"></i><span>Kelas</span></a></li>
+                    <li class="{{Request::is('admin/spps') ? 'active' : null}}"><a href="{{route('a.spps.index')}}" class="nav-link"><i class="fas fa-users"></i><span>SPP</span></a></li>
                 </ul>
             </li>
             <li class="menu-header">Transaksi</li>

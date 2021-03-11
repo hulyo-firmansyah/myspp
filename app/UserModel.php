@@ -20,13 +20,24 @@ class UserModel extends Authenticatable
         'password',
         'email',
         'role',
+        'email_verified_at'
     ];
 
     protected $hidden = [
         'password', 'remember_token',
     ];
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    // protected $casts = [
+    //     'email_verified_at' => 'datetime',
+    // ];
+
+    public function workers()
+    {
+        return $this->hasOne(AdminModel::class, 'data_of', 'id_user');
+    }
+
+    public function admin()
+    {
+        // return $this
+    }
 }

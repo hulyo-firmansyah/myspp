@@ -19,4 +19,9 @@ class StudentModel extends Model
         'no_telp',
         'id_spp',
     ];
+
+    public function users()
+    {
+        return $this->belongsTo(UserModel::class, 'data_of', 'id_user');
+    }
 }

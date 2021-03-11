@@ -16,8 +16,8 @@ class accountSeeder extends Seeder
         $faker = Faker::create('id_ID');
         $role = ['admin', 'worker'];
         
-        for($i=0; $i<5; $i++){
-            if($i == 0){
+        for($i=1; $i<100; $i++){
+            if($i < 0){
                 $id = DB::table('users')->insertGetId([
                     'username' => $faker->userName,
                     'password' => bcrypt('admin'),

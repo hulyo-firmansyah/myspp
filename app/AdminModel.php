@@ -14,4 +14,16 @@ class AdminModel extends Model
     protected $fillable = [
         'nama_petugas'
     ];
+
+    public function userWorker()
+    {
+        return $this->belongsTo(UserModel::class, 'data_of', 'id_user')
+            ->where('role', 'worker');
+    }
+
+    public function userAdmin()
+    {
+        return $this->belongsTo(UserModel::class, 'data_of', 'id_user')
+            ->where('role', 'admin');
+    }
 }
