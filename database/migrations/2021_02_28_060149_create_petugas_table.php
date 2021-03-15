@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Carbon\Carbon;
 
 class CreatePetugasTable extends Migration
 {
@@ -24,6 +25,15 @@ class CreatePetugasTable extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
+        DB::table('petugas')->insert(
+            [
+                'nama_petugas' => 'Hulyo Firmansyah',
+                'data_of' => 1,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]
+        );
     }
 
     /**

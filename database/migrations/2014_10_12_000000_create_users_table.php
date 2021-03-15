@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Carbon\Carbon;
 
 class CreateUsersTable extends Migration
 {
@@ -24,6 +25,18 @@ class CreateUsersTable extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
+        DB::table('users')->insert(
+            [
+                'username' => 'admin',
+                'password' => bcrypt('admin'),
+                'email' => 'admin@gmail.com',
+                'role' => 'admin',
+                'email_verified_at' => Carbon::now(),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]
+        );
     }
 
     /**

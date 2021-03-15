@@ -17,6 +17,7 @@ class CreateSppTable extends Migration
             $table->increments('id_spp', 11);
             $table->integer('tahun')->length(11);
             $table->integer('nominal')->length(11);
+            $table->integer('periode')->length(11);
             $table->timestamps();
             $table->softDeletes();
         });
