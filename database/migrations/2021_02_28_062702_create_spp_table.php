@@ -18,7 +18,7 @@ class CreateSppTable extends Migration
             $table->integer('tahun')->length(11);
             $table->integer('nominal')->length(11);
             $table->integer('periode')->length(11);
-            $table->integer('tingkat')->length(11);
+            $table->enum('tingkat', [10,11,12]);
             $table->timestamps();
             $table->softDeletes();
         });
