@@ -33,9 +33,9 @@ Route::prefix('admin')->name('a.')->group(function(){
         Route::get('/trash', 'Admin\WorkersController@trash')->name('trash');
         Route::prefix('/api')->name('api.')->group(function(){
             Route::get('/get', 'Admin\WorkersController@api_get')->name('get');
+            Route::get('/get-details/{id}', 'Admin\WorkersController@api_getDetails')->name('get_details');
 
             Route::post('/store', 'Admin\WorkersController@api_store')->name('store');
-            Route::get('/get-details/{id}', 'Admin\WorkersController@api_getDetails')->name('get_details');
             Route::delete('/delete-selected', 'Admin\WorkersController@api_deleteSelected')->name('delete');
             Route::put('/update/{id}', 'Admin\WorkersController@api_update')->name('update');
 
@@ -47,7 +47,23 @@ Route::prefix('admin')->name('a.')->group(function(){
 
     Route::prefix('/students')->name('students.')->group(function(){
         Route::get('/', 'Admin\StudentsController@index')->name('index');
+        Route::get('/trash', 'Admin\StudentsController@trash')->name('trash');
+
         Route::get('/{class}/', 'Admin\StudentsController@studentsByClass')->name('byclass');
+
+        Route::prefix('/api')->name('api.')->group(function(){
+            Route::get('/get', 'Admin\StudentsController@api_get')->name('get');
+            Route::get('/class/{class}', 'Admin\StudentsController@api_getStudentByClass')->name('get.class.student');
+            Route::get('/get-details/{id}', 'Admin\StudentsController@api_getDetails')->name('get_details');
+
+            Route::post('/store', 'Admin\StudentsController@api_store')->name('store');
+            Route::put('/update/{id}', 'Admin\StudentsController@api_update')->name('update');
+            Route::delete('/delete-selected', 'Admin\StudentsController@api_deleteSelected')->name('delete');
+
+            Route::get('/get/trash', 'Admin\StudentsController@api_getTrashed')->name('get.trash');
+            Route::put('/restore-selected', 'Admin\StudentsController@api_restoreSelected')->name('restore');
+            Route::delete('/force-delete', 'Admin\StudentsController@api_forceDeleteSelected')->name('force-delete');
+        });
     });
 
     Route::prefix('/class')->name('class.')->group(function(){
@@ -70,6 +86,20 @@ Route::prefix('admin')->name('a.')->group(function(){
 
     Route::prefix('/spps')->name('spps.')->group(function(){
         Route::get('/', 'Admin\SppController@index')->name('index');
+
+        Route::get('/trash', 'Admin\SppController@trash')->name('trash');
+        Route::prefix('/api')->name('api.')->group(function(){
+            Route::get('/get', 'Admin\SppController@api_get')->name('get');
+
+            Route::post('/store', 'Admin\SppController@api_store')->name('store');
+            Route::get('/get-details/{id}', 'Admin\SppController@api_getDetails')->name('get_details');
+            Route::delete('/delete-selected', 'Admin\SppController@api_deleteSelected')->name('delete');
+            Route::put('/update/{id}', 'Admin\SppController@api_update')->name('update');
+
+            Route::get('/get/trash', 'Admin\SppController@api_getTrashed')->name('get.trash');
+            Route::put('/restore-selected', 'Admin\SppController@api_restoreSelected')->name('restore');
+            Route::delete('/force-delete', 'Admin\SppController@api_forceDeleteSelected')->name('force-delete');
+        });
     });
 });
 Route::prefix('worker')->name('w.')->group(function(){

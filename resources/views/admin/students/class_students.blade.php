@@ -8,7 +8,7 @@
 @endsection
 @section('content')
 <div class="section-header">
-    <h1>Siswa</h1>
+    <h1>{{ $perclass->class }}</h1>
     <div class="section-header-button">
         <button class="btn btn-primary" data-target="#studentAdd" data-toggle="modal"><i class="fa fa-plus" aria-hidden="true"></i> Tambah</button>
         <a href="{{route('a.students.trash')}}" class="btn btn-danger ml-2" title="Recycle Bin"><i class="fa fa-trash" aria-hidden="true"></i></a>
@@ -20,7 +20,7 @@
     </div>
 </div>
 <div class="section-body">
-    <h2 class="section-title">Siswa</h2>
+    <h2 class="section-title">Siswa Kelas {{ $perclass->class }}</h2>
     <p class="section-lead">
         Anda dapat melakuakan tambah, edit, ubah, atau hapus pada data siswa.
     </p>
@@ -29,7 +29,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h4>Data Siswa</h4>
+                    <h4>Data Siswa Kelas {{ $perclass->class }}</h4>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -58,8 +58,6 @@
 <script src="/modules/input-mask/jquery.inputmask.bundle.min.js"></script>
 @endsection
 @section('js_page')
-{{--
-<script src="/js/page/modules-datatables.js"></script> --}}
 @endsection
 @section('js_custom')
 
@@ -74,7 +72,7 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5>Tambah Siswa</h5>
+                <h5>Tambah Siswa Kelas {{ $perclass->class }}</h5>
             </div>
             <div class="modal-body">
                 <form method="post" action="/admin/students/add" id="sNewForm">
@@ -133,11 +131,8 @@
                         <div class="col-12 col-md-6">
                             <div class="form-group">
                                 <label for="sNewClass">Kelas</label>
-                                <select class="form-control" name="" id="sNewClass">
-                                    @foreach($data as $cls)
-                                    <option value="{{$cls['class_id']}}">{{ $cls['class']
-                                        }}</option>
-                                    @endforeach
+                                <select class="form-control" name="" id="sNewClass" disabled>
+                                    <option selected value="{{$perclass->class_id}}">{{ $perclass->class}}</option>
                                 </select>
                             </div>
                         </div>
@@ -182,17 +177,14 @@
         $('#sNewNominal').inputmask({
             'alias': 'decimal'
             , 'groupSeparator': ','
-            , 'autoGroup': true,
-            // 'digits': 1,
-            // 'digitsOptional': false,
-            // 'placeholder': '-',
-            'prefix': 'Rp. '
+            , 'autoGroup': true
+            , 'prefix': 'Rp. '
             , 'rightAlign': false
         , })
 
         const studentsDataTable = $("#studentsList").DataTable({
             ajax: {
-                "url": "{{route('a.students.api.get')}}"
+                "url": "{{route('a.students.api.get.class.student', ['class' => $perclass->class_id])}}"
                 , "dataSrc": "data"
             }
             , "columns": [{
@@ -212,8 +204,8 @@
                     , "data": "username"
                 }
                 , {
-                    title: "Kelas"
-                    , "data": "class"
+                    title: "Email"
+                    , "data": "email"
                 }
                 , {
                     title: "Dibuat"
@@ -456,7 +448,7 @@
                                 </div>
                                 <div class="desc">
                                     <div class="font-weight-bold">Kelas</div>
-                                    <div>${selectedStudentsData.class} - ${selectedStudentsData.class_name}</div>
+                                    <div>${selectedStudentsData.class}</div>
                                 </div>
                             </div>
                             <div class="row">
@@ -581,8 +573,7 @@
                             <label for="sDetClass">Kelas</label>
                             <select class="form-control" name="" id="sDetClass">
                                 @foreach($data as $cls)
-                                <option value="{{$cls['class_id']}}">{{ $cls['class']
-                                    }}</option>
+                                    <option value="{{$cls['class_id']}}">{{ $cls['class']}}</option>
                                 @endforeach
                             </select>
                         </div>

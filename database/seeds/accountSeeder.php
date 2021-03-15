@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use Faker\Factory as Faker;
-use Carbon\Carbon;  
+use Carbon\Carbon;
 
 class accountSeeder extends Seeder
 {

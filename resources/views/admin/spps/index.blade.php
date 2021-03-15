@@ -7,47 +7,40 @@
 @section('css_custom')
 @endsection
 @section('content')
-    <div class="section-header">
-        <h1>SPP</h1>
-        <div class="section-header-button">
-            <button class="btn btn-primary" data-target="#classAdd" data-toggle="modal"><i class="fa fa-plus" aria-hidden="true"></i> Tambah</button>
-            <a href="{{route('a.workers.trash')}}" class="btn btn-danger ml-2" title="Recycle Bin"><i class="fa fa-trash" aria-hidden="true"></i></a>
-        </div>
-        <div class="section-header-breadcrumb">
-            <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-            <div class="breadcrumb-item"><a href="#">Modules</a></div>
-            <div class="breadcrumb-item">DataTables</div>
-        </div>
+<div class="section-header">
+    <h1>SPP</h1>
+    <div class="section-header-breadcrumb">
+        <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
+        <div class="breadcrumb-item"><a href="#">Modules</a></div>
+        <div class="breadcrumb-item">DataTables</div>
     </div>
-    <div class="section-body">
-        <h2 class="section-title">SPP</h2>
-        <p class="section-lead">
-            Anda dapat melakuakan tambah, edit, ubah, atau hapus pada data SPP.
-        </p>
+</div>
+<div class="section-body">
+    <h2 class="section-title">SPP</h2>
+    <p class="section-lead">
+        Anda hanya dapat melakuakan edit atau ubah pada data SPP.
+    </p>
 
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Data SPP</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped" id="workerList">
-                                <thead>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn btn-danger btn-sm" id="workersDelete"><i class="fa fa-trash" aria-hidden="true"></i> Delete</button>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Data SPP</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="sppsList">
+                            <thead>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 @endsection
 @section('js_lib')
 <script src="/modules/datatables/datatables.min.js"></script>
@@ -56,7 +49,7 @@
 <script src="/modules/jquery-ui/jquery-ui.min.js"></script>
 @endsection
 @section('js_page')
-{{-- <script src="/js/page/modules-datatables.js"></script> --}}
+
 @endsection
 @section('js_custom')
 
@@ -66,112 +59,78 @@
     </div>
 </div>
 
-<div class="modal fade" id="studentAdd" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5>Tambah Petugas</h5>
-            </div>
-            <div class="modal-body">
-                <form method="post" action="/admin/workers/add" id="wNewForm">
-                    <div class="form-group">
-                        <label for="wNewName">Nama</label>
-                        <input type="text" class="form-control" id="wNewName" placeholder="" >
-                    </div>
-                    <div class="form-group">
-                        <label for="wNewUsername">Username</label>
-                        <input type="text" class="form-control" id="wNewUsername" placeholder="" >
-                    </div>
-                    <div class="form-group">
-                        <label for="wNewEmail">Email</label>
-                        <input type="email" class="form-control" id="wNewEmail" placeholder="" >
-                    </div>
-                    <div class="form-group">
-                        <label for="wNewPassword">Password</label>
-                        <input type="password" class="form-control" id="wNewPassword" placeholder="">
-                    </div>
-                    <div class="form-group">
-                        <label for="wNewPasswordC">Confirm Password</label>
-                        <input type="password" class="form-control" id="wNewPasswordC" placeholder="">
-                    </div>
-                    <div class="d-flex justify-content-end">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary ml-2"><i class="fa fa-paper-plane" aria-hidden="true"></i> Kirim</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<script>
+    $(document).ready(function() {
 
-{{-- <script>
-    $(document).ready(function(){
-        
-        const tableworker = $("#workerList").DataTable({
+        const tableworker = $("#sppsList").DataTable({
             ajax: {
-                "url" : "{{route('a.workers.api.get')}}",
-                "dataSrc" : "data"
-            },
-            "columns": [
-                { 
-                    title : "<input type='checkbox' id='workersCheckbox'>",
-                    "data": null,
-                    orderable: false,
-                    "render" : function(itemdata){
-                        return `<input type='checkbox' class="workers-checkbox" data-id=${itemdata.id}>`
+                "url": "{{route('a.spps.api.get')}}"
+                , "dataSrc": "data"
+            }
+            , "columns": [{
+                    title: "#"
+                    , "data": null
+                    , orderable: false
+                    , "render": function(itemdata) {
+                        return `#`
                     }
-                },
-                { 
-                   title : "Nama Petugas",
-                    "data": "name" 
-                },
-                { 
-                    title : "Username",
-                    "data": "username"
-                },
-                { 
-                    title : "Email",
-                    "data": "email" 
-                },
-                { 
-                    title : "Dibuat",
-                    "data": "created_at"
-                },
-                { 
-                    'data': null, 
-                    title: 'Action',
-                    wrap: true,
-                    orderable: false,
-                    "render": function (item) 
-                    { 
+                }
+                , {
+                    title: "Nama Siswa"
+                    , "data": null
+                }
+                , {
+                    title: "NISN"
+                    , "data": null
+                }
+                , {
+                    title: "Kelas"
+                    , "data": null
+                }
+                , {
+                    title: "Tahun"
+                    , "data": "year"
+                }
+                , {
+                    title: "Nominal"
+                    , "data": "nominal"
+                }
+                , {
+                    'data': null
+                    , title: 'Action'
+                    , wrap: true
+                    , orderable: false
+                    , "render": function(item) {
                         return `<button type="button" class="btn btn-primary btn-sm worker-details-trigger" data-id=${item.id} data-toggle="modal" data-target="#workerDetails"><i class="fa fa-info-circle" aria-hidden="true"></i> Details</button>`
-                    } 
-                },
-            ],
-            "sDom": '<"ui-toolbar ui-widget-header ui-corner-tl ui-corner-tr ui-helper-clearfix"lfr>t<"ui-toolbar ui-widget-header ui-corner-bl ui-corner-br ui-helper-clearfix"<"testbutton">ip>',
+                    }
+                }
+            , ]
+            , "sDom": '<"ui-toolbar ui-widget-header ui-corner-tl ui-corner-tr ui-helper-clearfix"lfr>t<"ui-toolbar ui-widget-header ui-corner-bl ui-corner-br ui-helper-clearfix"<"testbutton">ip>'
+        , })
+        let selectedWorkers = []
+            , selectedWorkersId = null
+            , selectedWorkersData
+
+        $('table').on('click', '.worker-details-trigger', function(e) {
+            selectedWorkersId = $(this).data('id')
         })
-        let selectedWorkers = [],
-            selectedWorkersId = null,
-            selectedWorkersData
 
-        $('table').on('click', '.worker-details-trigger', function(e){selectedWorkersId = $(this).data('id')})
-
-        $('#workersDelete').click(function(){
+        $('#workersDelete').click(function() {
             selectedWorkers = []
-            $('.workers-checkbox:checked').each(function(key, value){
+            $('.workers-checkbox:checked').each(function(key, value) {
                 selectedWorkers.push(value.dataset.id)
             })
 
-            if(selectedWorkers.length > 0){
+            if (selectedWorkers.length > 0) {
                 $.ajax({
-                    url: "{{route('a.workers.api.delete')}}",
-                    type: 'delete',
-                    dataType: "JSON",
-                    data: {
-                        id : selectedWorkers
-                    },
-                    success: function(data){
-                        $('.workers-checkbox:checked').each(function(key, value){
+                    url: "{{route('a.workers.api.delete')}}"
+                    , type: 'delete'
+                    , dataType: "JSON"
+                    , data: {
+                        id: selectedWorkers
+                    }
+                    , success: function(data) {
+                        $('.workers-checkbox:checked').each(function(key, value) {
                             tableworker.row($(value).parents('tr')).remove().draw()
                         })
                     }
@@ -179,11 +138,11 @@
             }
         })
 
-        $('#workersCheckbox').change(function(){
+        $('#workersCheckbox').change(function() {
             const check = $(this).is(':checked')
-            if(check){
+            if (check) {
                 $('.workers-checkbox').prop('checked', true);
-            }else{
+            } else {
                 $('.workers-checkbox').prop('checked', false);
             }
         })
@@ -191,57 +150,16 @@
 
         //modal
 
-        //New
-        $('#wNewForm').on('submit', function(e){
-            e.preventDefault()
-            const data = {
-                'name' : [ '#wNewName', e.target[0].value ],
-                'username' : [ '#wNewUsername' ,e.target[1].value ],
-                'email' : [ '#wNewEmail', e.target[2].value ],
-                'password' : [ '#wNewPassword', e.target[3].value ],
-                'password_conf' : [ '#wNewPasswordC', e.target[4].value ],
-            }
-
-            $.each(data, function(i, v){
-                $(data[i][0]).removeClass('is-invalid').next().remove()
-            })
-
-            $.ajax({
-                url: `{{route('a.workers.api.store')}}`,
-                type: 'post',
-                data: {
-                    'name' : data.name[1],
-                    'username' : data.username[1],
-                    'email' : data.email[1],
-                    'password' : data.password[1],
-                    'password_conf' : data.password_conf[1],
-                },
-                success: function(res){
-                    const {status, length} = JSON.parse(res)
-                    if(status){
-                        tableworker.ajax.reload()
-                        $.each(data, function(i, v){
-                            $(data[i][0]).val('')
-                        })
-                        $('#workerAdd').modal('hide')
-                    }
-                },
-                error: function(err, status, msg){
-                    console.log(err.responseJSON.errors, err)
-                    $.each(err.responseJSON.errors, function(i, v){
-                        $(data[i][0]).addClass('is-invalid')
-                        $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
-                    })
-                }
-            })
-        })
-
         //Detail
-        $('#workerDetails').on('show.bs.modal', function (e) {
+        $('#workerDetails').on('show.bs.modal', function(e) {
             $.ajax({
-                url : `/admin/workers/api/get-details/${selectedWorkersId}`,
-                success: function(result){
-                    let {data, status, length} = JSON.parse(result)
+                url: `/admin/workers/api/get-details/${selectedWorkersId}`
+                , success: function(result) {
+                    let {
+                        data
+                        , status
+                        , length
+                    } = JSON.parse(result)
                     selectedWorkersData = data[0]
                     $('#workerDetails .modal-dialog .modal-content').html(`
                         <div class="modal-header">
@@ -318,14 +236,14 @@
             })
         })
 
-        $('#workerDetails').on('hide.bs.modal', function (e) {
+        $('#workerDetails').on('hide.bs.modal', function(e) {
             $('#workerDetails .modal-dialog .modal-content').html('')
         })
 
         //action
-            //update
-            $('#workerDetails').on('click', '#modalEdit', function(e){
-                $('#workerDetails .modal-dialog .modal-content').html(` 
+        //update
+        $('#workerDetails').on('click', '#modalEdit', function(e) {
+            $('#workerDetails .modal-dialog .modal-content').html(` 
                     <div class="modal-header">
                         <h5>Edit Data</h5>
                         <div class="d-flex justify-content-center align-items-center">
@@ -363,66 +281,52 @@
                         </div>
                     </form>
                 `)
+        })
+
+        $('#workerDetails').on('submit', '#workerDetailsForm', function(e) {
+            e.preventDefault()
+            const data = {
+                'name': ['#wDetName', e.target[0].value]
+                , 'username': ['#wDetUsername', e.target[1].value]
+                , 'email': ['#wDetEmail', e.target[2].value]
+                , 'password': ['#wDetPassword', e.target[3].value]
+                , 'password_conf': ['#wDetPasswordC', e.target[4].value]
+            , }
+
+            $.each(data, function(i, v) {
+                $(data[i][0]).removeClass('is-invalid').next().remove()
             })
 
-            $('#workerDetails').on('submit', '#workerDetailsForm', function(e){
-                e.preventDefault()
-                const data = {
-                    'name' : [ '#wDetName', e.target[0].value ],
-                    'username' : [ '#wDetUsername' ,e.target[1].value ],
-                    'email' : [ '#wDetEmail', e.target[2].value ],
-                    'password' : [ '#wDetPassword', e.target[3].value ],
-                    'password_conf' : [ '#wDetPasswordC', e.target[4].value ],
+            $.ajax({
+                url: `/admin/workers/api/update/${selectedWorkersId}`
+                , type: 'PUT'
+                , data: {
+                    'name': data.name[1]
+                    , 'username': data.username[1]
+                    , 'email': data.email[1]
+                    , 'password': data.password[1]
+                    , 'password_conf': data.password_conf[1]
+                , }
+                , success: function(res) {
+                    const {
+                        data
+                        , status
+                        , length
+                    } = JSON.parse(res)
+                    if (status) {
+                        tableworker.ajax.reload()
+                    }
+                    $('#workerDetails').modal('hide')
                 }
-
-                $.each(data, function(i, v){
-                    $(data[i][0]).removeClass('is-invalid').next().remove()
-                })
-
-                $.ajax({
-                    url: `/admin/workers/api/update/${selectedWorkersId}`,
-                    type: 'PUT',
-                    data: {
-                        'name' : data.name[1],
-                        'username' : data.username[1],
-                        'email' : data.email[1],
-                        'password' : data.password[1],
-                        'password_conf' : data.password_conf[1],
-                    },
-                    success: function(res){
-                        const {data, status, length} = JSON.parse(res)
-                        if(status){
-                            tableworker.ajax.reload()
-                        }                        
-                        $('#workerDetails').modal('hide')
-                    },
-                    error: function(err, status, msg){
-                        $.each(err.responseJSON.errors, function(i, v){
-                            $(data[i][0]).addClass('is-invalid')
-                            $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
-                        })
-                    }
-                })
+                , error: function(err, status, msg) {
+                    $.each(err.responseJSON.errors, function(i, v) {
+                        $(data[i][0]).addClass('is-invalid')
+                        $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
+                    })
+                }
             })
-
-            //delete
-            $('#workerDetails').on('click', '#modalDelete', function(e){
-                $.ajax({
-                    url: "{{route('a.workers.api.delete')}}",
-                    type: 'delete',
-                    dataType: "JSON",
-                    data: {
-                        id : selectedWorkersId
-                    },
-                    success: function(result){
-                        let {data, status, length} = result
-                        if(status){
-                            $('#workerDetails').modal('hide')
-                            tableworker.ajax.reload()
-                        }
-                    }
-                })
-            })
+        })
     })
-</script> --}}
+
+</script>
 @endsection

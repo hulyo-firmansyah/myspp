@@ -16,7 +16,7 @@ class WorkersController extends Controller
     //validation
     private function term($request, $id=null)
     {
-        $this->validate($request, [
+        return $this->validate($request, [
             'name' => 'required',
             'username' => 'required|min:4|unique:users,username,'.$id.',id_user',
             'email' => 'required|email|unique:users,email,'.$id.',id_user',
@@ -44,7 +44,7 @@ class WorkersController extends Controller
 
     public function getUsers($role = null, $id = null, $trash = false)
     {   
-        $worker = $trash ? $worker = UserModel::with(['workers' => function($query){ $query->onlyTrashed(); }])->onlyTrashed() : $worker = UserModel::with('workers');
+        $worker = $trash ? $worker = UserModel::with(['workers' => function($query){ return $query->onlyTrashed(); }])->onlyTrashed() : $worker = UserModel::with('workers');
 
         if($id != null){
             $worker = $worker->where('id_user', $id)->get();
@@ -52,18 +52,18 @@ class WorkersController extends Controller
             $worker = $role != null ? $worker->where('role', $role)->get() : $worker->get();
         }
         $data = collect([]);
-        foreach(Main::genArray($worker) as $worker){
+        foreach(Main::genArray($worker) as $wkr){
             $data->push([
-                'id' => Crypt::encrypt($worker->id_user),
-                'username' => $worker->username,
-                'email' => $worker->email,
-                'role' => $worker->role,
-                'id_2' => Crypt::encrypt($worker->workers->id_petugas),
-                'name' => $worker->workers->nama_petugas,
-                'created_at' => Carbon::parse($worker->created_at)->format('d-m-Y'),
-                'updated_at' => Carbon::parse($worker->updated_at)->format('d-m-Y'),
-                'deleted_at' => $worker->deleted_at ? Carbon::parse($worker->deleted_at)->format('d-m-Y') : null,
-                'data_of' => $worker->workers->data_of,
+                'id' => Crypt::encrypt($wkr->id_user),
+                'username' => $wkr->username,
+                'email' => $wkr->email,
+                'role' => $wkr->role,
+                'id_2' => Crypt::encrypt($wkr->workers->id_petugas),
+                'name' => $wkr->workers->nama_petugas,
+                'created_at' => Carbon::parse($wkr->created_at)->format('d-m-Y'),
+                'updated_at' => Carbon::parse($wkr->updated_at)->format('d-m-Y'),
+                'deleted_at' => $wkr->deleted_at ? Carbon::parse($wkr->deleted_at)->format('d-m-Y') : null,
+                'data_of' => $wkr->workers->data_of,
             ]);
         }
         return $data;

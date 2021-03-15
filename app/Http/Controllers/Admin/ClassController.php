@@ -15,7 +15,7 @@ class ClassController extends Controller
     //Validation
     private function term($request, $id=null)
     {
-        $this->validate($request, [
+        return $this->validate($request, [
             'class_name' => 'required|min:3|max:10|unique:kelas,nama_kelas,'.$id.',id_kelas',
             'class_steps' => 'required|numeric',
             'class_competence' => 'required|max:50|unique:kelas,kompetensi_keahlian,'.$id.',id_kelas'

@@ -11,7 +11,7 @@
             <li class="dropdown {{Request::is('admin') ? 'active' : null}}">
                 <a href="#" class="nav-link"><i class="fas fa-fire"></i><span>Dashboard</span></a>
             </li>
-            <li class="menu-header">Master</li>
+            <li class="menu-header">Management Data</li>
             <li class="dropdown {{Request::is('admin/*') ? 'active' : null}}">
                 <a href="#" class="nav-link has-dropdown"><i class="fas fa-database"></i><span>Master</span></a>
                 <ul class="dropdown-menu has-dropdown">
