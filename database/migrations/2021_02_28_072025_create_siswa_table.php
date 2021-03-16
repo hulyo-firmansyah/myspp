@@ -25,11 +25,6 @@ class CreateSiswaTable extends Migration
                 ->on('kelas');
             $table->text('alamat');
             $table->string('no_telp', 13);
-            $table->integer('id_spp')->length(11)->unsigned();
-            $table->foreign('id_spp')
-                ->cascadeOnDelete()
-                ->references('id_spp')
-                ->on('spp');
             $table->integer('data_of')->unsigned();
             $table->foreign('data_of')
                 ->cascadeOnDelete()
