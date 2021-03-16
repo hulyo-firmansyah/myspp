@@ -32,7 +32,7 @@ class CreatePembayaranTable extends Migration
             $table->foreign('id_spp')
                 ->cascadeOnDelete()
                 ->references('id_spp')
-                ->on('siswa');
+                ->on('spp');
             $table->integer('jumlah_bayar')->length(11);
             $table->timestamps();
             $table->softDeletes();
