@@ -58,8 +58,6 @@
 <script src="/modules/input-mask/jquery.inputmask.bundle.min.js"></script>
 @endsection
 @section('js_page')
-{{--
-<script src="/js/page/modules-datatables.js"></script> --}}
 @endsection
 @section('js_custom')
 
@@ -147,7 +145,7 @@
                                 <textarea name="" id="sNewAddress" class="form-control"></textarea>
                             </div>
                         </div>
-                        <div class="col-12 font-weight-bold mb-2">
+                        {{-- <div class="col-12 font-weight-bold mb-2">
                             SPP
                         </div>
                         <div class="col-12 col-6">
@@ -161,7 +159,7 @@
                                 <label for="sNewNominal">Nominal</label>
                                 <input type="text" class="form-control" name="" id="sNewNominal" aria-describedby="helpId" placeholder="">
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                     <div class="d-flex justify-content-end">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
@@ -294,10 +292,10 @@
                 , 'student_nis': ['#sNewNIS', e.target[7].value]
                 , 'student_class': ['#sNewClass', e.target[8].value]
                 , 'student_address': ['#sNewAddress', e.target[9].value]
-                , 'student_year': ['#sNewYear', e.target[10].value]
-                , 'student_nominal': ['#sNewNominal', () => {
-                    return e.target[11].inputmask.unmaskedvalue()
-                }]
+                //, 'student_year': ['#sNewYear', e.target[10].value]
+                //, 'student_nominal': ['#sNewNominal', () => {
+                //return e.target[11].inputmask.unmaskedvalue()
+                //}]
             }
 
             $.each(data, function(i, v) {
@@ -318,8 +316,8 @@
                     , 'student_nis': data.student_nis[1]
                     , 'student_class': data.student_class[1]
                     , 'student_address': data.student_address[1]
-                    , 'student_year': data.student_year[1]
-                    , 'student_nominal': data.student_nominal[1]
+                    //, 'student_year': data.student_year[1]
+                    //, 'student_nominal': data.student_nominal[1]
                 }
                 , success: function(res) {
                     const {
@@ -552,7 +550,7 @@
                         </div>
                         <div class="form-group">
                             <label for="sDetPhone">Telfon</label>
-                            <input type="tel" class="form-control" id="sDetPhone" placeholder="" value="${selectedStudentsData.phone}">
+                            <input type="tel" class="form-control" id="sDetPhone" placeholder="" value="${selectedStudentsData.phone.replace(/^0/, '')}">
                         </div>
                         <div class="form-group">
                             <label for="sDetPassword">Password</label>
@@ -637,8 +635,8 @@
                     , 'student_nis': data.student_nis[1]
                     , 'student_class': data.student_class[1]
                     , 'student_address': data.student_address[1]
-                    , 'student_year': 0
-                    , 'student_nominal': 0
+                    //, 'student_year': 0
+                    //, 'student_nominal': 0
                 }
                 , success: function(res) {
                     const {
