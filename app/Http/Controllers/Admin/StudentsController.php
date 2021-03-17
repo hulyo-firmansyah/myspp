@@ -28,8 +28,8 @@ class StudentsController extends Controller
             'student_nis' => 'required|max:8',
             'student_class' => 'required',
             'student_address' => 'required|min:20',
-            'student_year' => 'required|numeric',
-            'student_nominal' => 'required|numeric',
+            // 'student_year' => 'required|numeric',
+            // 'student_nominal' => 'required|numeric',
         ]);
     }
 
@@ -114,8 +114,8 @@ class StudentsController extends Controller
                     'address' => $std->alamat,
                     'class_name' => $std->classes->nama_kelas,
                     'class' => Main::classStepsFilter($std->classes->tingkatan)." ".$std->classes->kompetensi_keahlian,
-                    'spp_year' => $std->spps->tahun,
-                    'spp_nominal' => $std->spps->nominal,
+                    // 'spp_year' => $std->spps->tahun,
+                    // 'spp_nominal' => $std->spps->nominal,
                     'created_at' => Carbon::parse($std->created_at)->format('d-m-Y'),
                     'updated_at' => Carbon::parse($std->updated_at)->format('d-m-Y'),
                     'deleted_at' => $std->deleted_at ? Carbon::parse($std->deleted_at)->format('d-m-Y') : null,
@@ -167,11 +167,11 @@ class StudentsController extends Controller
             'email_verified_at' => Carbon::now(),
         ]);
         $userId = $user->id_user;
-        $spp = SppModel::create([
-            'tahun' => $request->student_year,
-            'nominal' => $request->student_nominal
-        ]);
-        $sppId = $spp->id_spp;
+        // $spp = SppModel::create([
+        //     'tahun' => $request->student_year,
+        //     'nominal' => $request->student_nominal
+        // ]);
+        // $sppId = $spp->id_spp;
         $classId = Crypt::decrypt($request->student_class);
         $classId = preg_replace('/[^0-9]/', '', $classId) === "" ? null : intval(preg_replace('/[^0-9]/', '', $classId));
         $student = StudentModel::create([
@@ -181,7 +181,7 @@ class StudentsController extends Controller
             'id_kelas' => $classId,
             'alamat' => $request->student_address,
             'no_telp' => $request->student_phone,
-            'id_spp' => $sppId,
+            // 'id_spp' => $sppId,
             'data_of' => $userId
         ]);
 

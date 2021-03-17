@@ -14,10 +14,7 @@ class SppModel extends Model
     protected $fillable = [
         'tahun',
         'nominal',
+        'periode',
+        'tingkat'
     ];
-
-    public function students()
-    {
-        return $this->belongsTo(StudentModel::class, 'id_spp', 'id_spp');
-    }
 }

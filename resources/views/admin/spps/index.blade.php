@@ -9,6 +9,12 @@
 @section('content')
 <div class="section-header">
     <h1>SPP</h1>
+    <div class="section-header-button">
+        <button class="btn btn-primary" data-target="#sppAdd" data-toggle="modal"><i class="fa fa-plus"
+                aria-hidden="true"></i> Tambah</button>
+        <a href="{{route('a.class.trash')}}" class="btn btn-danger ml-2" title="Recycle Bin"><i class="fa fa-trash"
+                aria-hidden="true"></i></a>
+    </div>
     <div class="section-header-breadcrumb">
         <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
         <div class="breadcrumb-item"><a href="#">Modules</a></div>
@@ -18,7 +24,7 @@
 <div class="section-body">
     <h2 class="section-title">SPP</h2>
     <p class="section-lead">
-        Anda hanya dapat melakuakan edit atau ubah pada data SPP.
+        Anda dapat melakuakan tambah, edit, ubah, atau hapus pada data SPP.
     </p>
 
     <div class="row">
@@ -47,125 +53,191 @@
 <script src="/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
 <script src="/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
 <script src="/modules/jquery-ui/jquery-ui.min.js"></script>
+
+<script src="/modules/input-mask/jquery.inputmask.bundle.min.js"></script>
 @endsection
 @section('js_page')
 
 @endsection
 @section('js_custom')
 
-<div class="modal fade" id="workerDetails" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+<div class="modal fade" id="sppAdd" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
     <div class="modal-dialog" role="document">
-        <div class="modal-content"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Tambah Pembayaran SPP</h5>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="/admin/spp/add" id="sppNewForm">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-group">
+                                <label for="sppNewPeriode">Periode</label>
+                                <input type="number" class="form-control" id="sppNewPeriode" placeholder="" value="">
+                                <small>*Periode pembayaran per tahun.</small>
+                            </div>
+                        </div>
+                        <div class="col-8">
+                            <div class="form-group">
+                                <label for="sppNewSteps">Tingkat</label>
+                                <select name="" id="sppNewSteps" class="form-control">
+                                    <option value="10">X</option>
+                                    <option value="11">XI</option>
+                                    <option value="12">XII</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label for="sppNewYear">Tahun</label>
+                                <input type="text" class="form-control" id="sppNewYear" placeholder="" value="">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label for="sppNewNominal">Nominal</label>
+                                <input type="text" class="form-control" id="sppNewNominal" placeholder="" value="">
+                                <small>Nominal akan dikalikan sejumlah periode.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary ml-2"><i class="fa fa-paper-plane"
+                                aria-hidden="true"></i> Kirim</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="sppDetails" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        </div>
     </div>
 </div>
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
 
-        const tableworker = $("#sppsList").DataTable({
+        const sppsDataTable = $("#sppsList").DataTable({
             ajax: {
                 "url": "{{route('a.spps.api.get')}}"
                 , "dataSrc": "data"
             }
             , "columns": [{
-                    title: "#"
-                    , "data": null
-                    , orderable: false
-                    , "render": function(itemdata) {
-                        return `#`
-                    }
+                title: "#"
+                , "data": null
+                , orderable: false
+                , "render": function (itemdata) {
+                    return `#`
                 }
+            }
                 , {
-                    title: "Nama Siswa"
-                    , "data": null
-                }
+                title: "Tahun"
+                , "data": "year"
+            }
                 , {
-                    title: "NISN"
-                    , "data": null
-                }
+                title: "Nominal"
+                , "data": "nominal_formatted"
+            }
                 , {
-                    title: "Kelas"
-                    , "data": null
-                }
+                title: "Tingkat"
+                , "data": "step"
+            }
                 , {
-                    title: "Tahun"
-                    , "data": "year"
-                }
+                title: "Periode"
+                , "data": "periode"
+            }
                 , {
-                    title: "Nominal"
-                    , "data": "nominal"
+                'data': null
+                , title: 'Action'
+                , wrap: true
+                , orderable: false
+                , "render": function (item) {
+                    return `<button type="button" class="btn btn-primary btn-sm spp-details-trigger" data-id=${item.id} data-toggle="modal" data-target="#sppDetails"><i class="fa fa-info-circle" aria-hidden="true"></i> Details</button>`
                 }
-                , {
-                    'data': null
-                    , title: 'Action'
-                    , wrap: true
-                    , orderable: false
-                    , "render": function(item) {
-                        return `<button type="button" class="btn btn-primary btn-sm worker-details-trigger" data-id=${item.id} data-toggle="modal" data-target="#workerDetails"><i class="fa fa-info-circle" aria-hidden="true"></i> Details</button>`
-                    }
-                }
-            , ]
-            , "sDom": '<"ui-toolbar ui-widget-header ui-corner-tl ui-corner-tr ui-helper-clearfix"lfr>t<"ui-toolbar ui-widget-header ui-corner-bl ui-corner-br ui-helper-clearfix"<"testbutton">ip>'
-        , })
-        let selectedWorkers = []
-            , selectedWorkersId = null
-            , selectedWorkersData
-
-        $('table').on('click', '.worker-details-trigger', function(e) {
-            selectedWorkersId = $(this).data('id')
+            }
+                ,]
+            ,
         })
 
-        $('#workersDelete').click(function() {
-            selectedWorkers = []
-            $('.workers-checkbox:checked').each(function(key, value) {
-                selectedWorkers.push(value.dataset.id)
+        let selectedSpps = []
+            , selectedSppsId = null
+            , selectedSppsData
+
+        $('#sppNewNominal').inputmask({
+            'alias': 'decimal'
+            , 'groupSeparator': ','
+            , 'autoGroup': true,
+            'prefix': 'Rp. '
+            , 'rightAlign': false
+        })
+
+        $('#sppAdd').on('submit', '#sppNewForm', function (e) {
+            e.preventDefault()
+
+            const data = {
+                'periode': ['#sppNewPeriode', e.target[0].value],
+                'steps': ['#sppNewSteps', e.target[1].value],
+                'year': ['#sppNewYear', e.target[2].value],
+                'nominal': ['#sppNewNominal', e.target[3].inputmask.unmaskedvalue()]
+            }
+
+            $.each(data, function (i, v) {
+                $(v[0]).removeClass('is-invalid').next().remove()
             })
 
-            if (selectedWorkers.length > 0) {
-                $.ajax({
-                    url: "{{route('a.workers.api.delete')}}"
-                    , type: 'delete'
-                    , dataType: "JSON"
-                    , data: {
-                        id: selectedWorkers
-                    }
-                    , success: function(data) {
-                        $('.workers-checkbox:checked').each(function(key, value) {
-                            tableworker.row($(value).parents('tr')).remove().draw()
-                        })
-                    }
-                })
-            }
+            $.ajax({
+                url: `{{route('a.spps.api.store')}}`,
+                type: 'post',
+                data: {
+                    'periode': data.periode[1],
+                    'steps': data.steps[1],
+                    'year': data.year[1],
+                    'nominal': data.nominal[1]
+                },
+                success: function (res) {
+                    $('#sppAdd').modal('hide')
+                    sppsDataTable.ajax.reload()
+                    $.each(data, function (i, v) {
+                        $(v[0]).val('')
+                    })
+                },
+                error: function (err) {
+                    $.each(err.responseJSON.errors, function (i, v) {
+                        $(data[i][0]).addClass('is-invalid')
+                        $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
+                    })
+                }
+            })
         })
 
-        $('#workersCheckbox').change(function() {
-            const check = $(this).is(':checked')
-            if (check) {
-                $('.workers-checkbox').prop('checked', true);
-            } else {
-                $('.workers-checkbox').prop('checked', false);
-            }
+        $('table').on('click', '.spp-details-trigger', function (e) {
+            selectedSppsId = $(this).data('id')
         })
 
 
         //modal
-
         //Detail
-        $('#workerDetails').on('show.bs.modal', function(e) {
+        $('#sppDetails').on('show.bs.modal', function (e) {
             $.ajax({
-                url: `/admin/workers/api/get-details/${selectedWorkersId}`
-                , success: function(result) {
+                url: `/admin/spps/api/get-details/${selectedSppsId}`
+                , success: function (result) {
                     let {
                         data
                         , status
                         , length
                     } = JSON.parse(result)
-                    selectedWorkersData = data[0]
-                    $('#workerDetails .modal-dialog .modal-content').html(`
+                    selectedSppsData = data[0]
+                    $('#sppDetails .modal-dialog .modal-content').html(`
                         <div class="modal-header">
-                            ${data[0].role == 'admin' ? '<div class="btn btn-sm btn-danger">Administrator</div>' : ''}
-                            ${data[0].role == 'worker' ? '<div class="btn btn-sm btn-primary">Petugas</div>' : ''}
-                            ${data[0].role == 'student' ? '<div class="btn btn-sm btn-success">Siswa</div>' : ''}
+                            <h5>Detail SPP</h5>
                             <div class="d-flex justify-content-center align-items-center">
                                 <button type="button" class="close" id="modalEdit">
                                     <i class="fas fa-pencil-alt"></i>
@@ -179,42 +251,71 @@
                             </div>
                         </div>
                         <div class="modal-body">
-                            <hr class="my-2">
-                            <div class="d-flex py-2">
-                                <div class="icon mr-3">
-                                    <i class="fas fa-user"></i>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="d-flex py-2">
+                                        <div class="icon mr-3">
+                                            <i class="fas fa-calendar-check"></i>
+                                        </div>
+                                        <div class="desc">
+                                            <div class="font-weight-bold">Tahun</div>
+                                            <div>${selectedSppsData.year}</div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="desc">
-                                    <div class="font-weight-bold">Nama</div>
-                                    <div>${data[0].name}</div>
-                                </div>
-                            </div>
-                            <hr class="my-2">
-                            <div class="d-flex py-2">
-                                <div class="icon mr-3">
-                                    <i class="fas fa-user-alt"></i>
-                                </div>
-                                <div class="desc">
-                                    <div class="font-weight-bold">Username</div>
-                                    <div>${data[0].username}</div>
-                                </div>
-                            </div>
-                            <div class="d-flex py-2">
-                                <div class="icon mr-3">
-                                    <i class="fas fa-envelope"></i>
-                                </div>
-                                <div class="desc">
-                                    <div class="font-weight-bold">Email</div>
-                                    <div>${data[0].email}</div>
+                                <div class="col-6">
+                                    <div class="d-flex py-2">
+                                        <div class="icon mr-3">
+                                            <i class="fas fa-angle-double-up"></i>
+                                        </div>
+                                        <div class="desc">
+                                            <div class="font-weight-bold">Tingkat</div>
+                                            <div>${selectedSppsData.step}</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="d-flex py-2">
                                 <div class="icon mr-3">
-                                    <i class="fas fa-calendar-alt"></i>
+                                    <i class="fas fa-globe-asia"></i>
+                                </div>
+                                <div class="desc">
+                                    <div class="font-weight-bold">Periode Pembayaran</div>
+                                    <div>${selectedSppsData.periode} Kali</div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="d-flex py-2">
+                                        <div class="icon mr-3">
+                                            <i class="fas fa-money-bill-wave"></i>
+                                        </div>
+                                        <div class="desc">
+                                            <div class="font-weight-bold">Biaya Per Periode</div>
+                                            <div>${selectedSppsData.nominal_per_steps_formatted}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="d-flex py-2">
+                                        <div class="icon mr-3">
+                                            <i class="fas fa-dollar-sign"></i>
+                                        </div>
+                                        <div class="desc">
+                                            <div class="font-weight-bold">Total Yang Harus Dibayar</div>
+                                            <div>${selectedSppsData.nominal_formatted}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3"></div>
+                            <div class="d-flex py-2">
+                                <div class="icon mr-3">
+                                    <i class="fas fa-calendar"></i>
                                 </div>
                                 <div class="desc">
                                     <div class="font-weight-bold">Dibuat</div>
-                                    <div>${data[0].created_at}</div>
+                                    <div>${selectedSppsData.updated_at}</div>
                                 </div>
                             </div>
                             <div class="d-flex py-2">
@@ -223,106 +324,141 @@
                                 </div>
                                 <div class="desc">
                                     <div class="font-weight-bold">Diubah</div>
-                                    <div>${data[0].updated_at}</div>
+                                    <div>${selectedSppsData.updated_at}</div>
                                 </div>
                             </div>
-                            <hr class="mt-2">
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                            </div>
                         </div>
                     `)
                 }
             })
         })
 
-        $('#workerDetails').on('hide.bs.modal', function(e) {
-            $('#workerDetails .modal-dialog .modal-content').html('')
+        $('#sppDetails').on('hide.bs.modal', function (e) {
+            $('#sppDetails .modal-dialog .modal-content').html('')
         })
 
         //action
         //update
-        $('#workerDetails').on('click', '#modalEdit', function(e) {
-            $('#workerDetails .modal-dialog .modal-content').html(` 
-                    <div class="modal-header">
-                        <h5>Edit Data</h5>
-                        <div class="d-flex justify-content-center align-items-center">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+        $('#sppDetails').on('click', '#modalEdit', function (e) {
+            $('#sppDetails .modal-dialog .modal-content').html(` 
+                <div class="modal-header">
+                    <h5>Tambah Pembayaran SPP</h5>
+                </div>
+                <div class="modal-body">
+                    <form method="post" id="sppDetailsForm">
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <label for="sppDetPeriode">Periode</label>
+                                    <input type="number" class="form-control" id="sppDetPeriode" placeholder="" value="${selectedSppsData.periode}">
+                                    <small>*Periode pembayaran per tahun.</small>
+                                </div>
+                            </div>
+                            <div class="col-8">
+                                <div class="form-group">
+                                    <label for="sppDetSteps">Tingkat</label>
+                                    <select name="" id="sppDetSteps" class="form-control">
+                                        <option value="10" ${selectedSppsData.step == 'X' ? 'selected' : null}>X</option>
+                                        <option value="11" ${selectedSppsData.step == 'XI' ? 'selected' : null}>XI</option>
+                                        <option value="12" ${selectedSppsData.step == 'XII' ? 'selected' : null}>XII</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <form method="post" id="workerDetailsForm">
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label for="wDetName">Nama</label>
-                                <input type="text" class="form-control" id="wDetName" placeholder="" value="${selectedWorkersData.name}">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="sppDetYear">Tahun</label>
+                                    <input type="text" class="form-control" id="sppDetYear" placeholder="" value="${selectedSppsData.year}">
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="wDetUsername">Username</label>
-                                <input type="text" class="form-control" id="wDetUsername" placeholder="" value="${selectedWorkersData.username}">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="sppDetNominal">Nominal</label>
+                                    <input type="text" class="form-control" id="sppDetNominal" placeholder="" value="${selectedSppsData.nominal_per_steps}">
+                                    <small>Nominal akan dikalikan sejumlah periode.</small>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="wDetEmail">Email</label>
-                                <input type="email" class="form-control" id="wDetEmail" placeholder="" value="${selectedWorkersData.email}">
-                            </div>
-                            <div class="form-group">
-                                <label for="wDetPassword">Password</label>
-                                <input type="password" class="form-control" id="wDetPassword" placeholder="">
-                            </div>
-                            <div class="form-group">
-                                <label for="wDetPasswordC">Confirm Password</label>
-                                <input type="password" class="form-control" id="wDetPasswordC" placeholder="">
-                            </div>
-                            <div class="d-flex justify-content-end">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                                <button type="submit" class="btn btn-primary ml-2"><i class="fa fa-paper-plane" aria-hidden="true"></i> Simpan</button>
-                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary ml-2"><i class="fa fa-paper-plane"
+                                    aria-hidden="true"></i> Kirim</button>
                         </div>
                     </form>
-                `)
+                </div>
+            `)
+
+            $('#sppDetNominal').inputmask({
+                'alias': 'decimal'
+                , 'groupSeparator': ','
+                , 'autoGroup': true,
+                'prefix': 'Rp. '
+                , 'rightAlign': false
+            })
         })
-
-        $('#workerDetails').on('submit', '#workerDetailsForm', function(e) {
+        $('#sppDetails').on('submit', '#sppDetailsForm', function (e) {
             e.preventDefault()
-            const data = {
-                'name': ['#wDetName', e.target[0].value]
-                , 'username': ['#wDetUsername', e.target[1].value]
-                , 'email': ['#wDetEmail', e.target[2].value]
-                , 'password': ['#wDetPassword', e.target[3].value]
-                , 'password_conf': ['#wDetPasswordC', e.target[4].value]
-            , }
 
-            $.each(data, function(i, v) {
-                $(data[i][0]).removeClass('is-invalid').next().remove()
+            const data = {
+                'periode': ['#sppDetPeriode', e.target[0].value],
+                'steps': ['#sppDetSteps', e.target[1].value],
+                'year': ['#sppDetYear', e.target[2].value],
+                'nominal': ['#sppDetNominal', e.target[3].inputmask.unmaskedvalue()]
+            }
+
+            $.each(data, function (i, v) {
+                $(v[0]).removeClass('is-invalid').next().remove()
             })
 
             $.ajax({
-                url: `/admin/workers/api/update/${selectedWorkersId}`
+                url: `/admin/spps/api/update/${selectedSppsId}`
                 , type: 'PUT'
                 , data: {
-                    'name': data.name[1]
-                    , 'username': data.username[1]
-                    , 'email': data.email[1]
-                    , 'password': data.password[1]
-                    , 'password_conf': data.password_conf[1]
-                , }
-                , success: function(res) {
+                    'periode': data.periode[1],
+                    'steps': data.steps[1],
+                    'year': data.year[1],
+                    'nominal': data.nominal[1]
+                }
+                , success: function (res) {
                     const {
                         data
                         , status
                         , length
                     } = JSON.parse(res)
                     if (status) {
-                        tableworker.ajax.reload()
+                        sppsDataTable.ajax.reload()
                     }
-                    $('#workerDetails').modal('hide')
+                    $('#sppDetails').modal('hide')
                 }
-                , error: function(err, status, msg) {
-                    $.each(err.responseJSON.errors, function(i, v) {
+                , error: function (err, status, msg) {
+                    $.each(err.responseJSON.errors, function (i, v) {
                         $(data[i][0]).addClass('is-invalid')
                         $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
                     })
+                }
+            })
+        })
+
+        //delete
+        $('#sppDetails').on('click', '#modalDelete', function (e) {
+            $.ajax({
+                url: "{{route('a.spps.api.delete')}}",
+                type: 'delete',
+                dataType: "JSON",
+                data: {
+                    id: selectedSppsId
+                },
+                success: function (result) {
+                    let { data, status, length } = result
+                    if (status) {
+                        $('#sppDetails').modal('hide')
+                        sppsDataTable.ajax.reload()
+                    }
                 }
             })
         })

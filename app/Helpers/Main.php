@@ -68,4 +68,9 @@ class Main{
             }
         }
     }
+
+    public static function rupiahCurrency($nominal)
+    {
+	    return "Rp " . number_format($nominal,0,',','.');
+    }
 }
