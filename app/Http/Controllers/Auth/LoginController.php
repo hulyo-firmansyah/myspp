@@ -38,29 +38,42 @@ class LoginController extends Controller
             'username' => $loginData['username'], 
             'password' => $loginData['password']
         ];
-        $role = Main::roleChecker($credentials['username']);
-        if(isset($role)){
-            $userRole = $role->role;
-            switch($userRole){
-                case 'admin':
-                    {
-                        if(Auth::guard('admin')->attempt($credentials, $request->filled('remember'))){
-                            return redirect()->intended(route('a.index'));
-                        }                
-                    }
+        $credentials['role'] = Main::getRoleWhenLogin($credentials['username']);
+        
+        if(Auth::attempt($credentials, $request->filled('remember'))){
+            $role = Auth::user()->role;
+            switch($role){
+                case 'admin' :
+                    return redirect()->intended(route('a.index'));
                 case 'worker' :
-                    {
-                        if(Auth::guard('worker')->attempt($credentials, $request->filled('remember'))){
-                            return redirect()->intended(route('w.index'));
-                        }  
-                    }
-                
-                // case 'student':
-                //     {
-
-                //     }
+                    return redirect()->intended(route('w.index'));
+                case 'student' :
+                    return;
             }
         }
+
+        // if(isset($role)){
+        //     $userRole = $role->role;
+        //     switch($userRole){
+        //         case 'admin':
+        //             {
+        //                 if(Auth::guard('admin')->attempt($credentials, $request->filled('remember'))){
+        //                     return redirect()->intended(route('a.index'));
+        //                 }                
+        //             }
+        //         case 'worker' :
+        //             {
+        //                 if(Auth::guard('worker')->attempt($credentials, $request->filled('remember'))){
+        //                     return redirect()->intended(route('w.index'));
+        //                 }  
+        //             }
+                
+        //         // case 'student':
+        //         //     {
+
+        //         //     }
+        //     }
+        // }
         return redirect()->route('login.form')->with('error', 'Login Error!');
     }
 

@@ -15,15 +15,16 @@ class CreatePembayaranTable extends Migration
     {
         Schema::create('pembayaran', function (Blueprint $table) {
             $table->increments('id_pembayaran', 11);
+            $table->string('kode_pembayaran', 9)->unique();
             $table->integer('id_petugas')->length(11)->unsigned();
             $table->foreign('id_petugas')
                 ->cascadeOnDelete()
                 ->references('id_petugas')
                 ->on('petugas');
-            $table->string('nisn', 10);
-            $table->foreign('nisn')
+            $table->integer('id_siswa')->length(11)->unsigned();
+            $table->foreign('id_siswa')
                 ->cascadeOnDelete()
-                ->references('nisn')
+                ->references('id_siswa')
                 ->on('siswa');
             $table->date('tgl_bayar');
             $table->string('bulan_dibayar', 8);

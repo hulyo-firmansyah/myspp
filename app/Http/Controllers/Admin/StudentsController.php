@@ -87,49 +87,11 @@ class StudentsController extends Controller
         }
     }
 
-    private function getStudent($id=null, $trash=false, $class = null)
-    {
-        $student = $trash ? $student = StudentModel::with(['users' => function($query){ return $query->onlyTrashed(); }, 'spps' => function($query){ return $query->onlyTrashed(); }])->onlyTrashed() : $student = StudentModel::with(['users', 'spps', 'classes']);
-
-        if($id != null){
-            $student = $student->where('id_siswa', $id)->get();
-        }else{
-            $student = $student->get();
-        }
-
-        $class ? $student = ClassModel::find($class)->with('students')->firstOrFail()->students : null;
-
-        $data = collect([]);
-        foreach(Main::genArray($student) as $std){
-            if($std->classes !== null){
-                $data->push([
-                    'id' => Crypt::encrypt($std->id_siswa),
-                    'username' => $std->users->username,
-                    'email' => $std->users->email,
-                    'role' => $std->users->role,
-                    'nisn' => $std->nisn,
-                    'nis' => $std->nis,
-                    'name' => $std->nama,
-                    'phone' => $std->no_telp,
-                    'address' => $std->alamat,
-                    'class_name' => $std->classes->nama_kelas,
-                    'class' => Main::classStepsFilter($std->classes->tingkatan)." ".$std->classes->kompetensi_keahlian,
-                    // 'spp_year' => $std->spps->tahun,
-                    // 'spp_nominal' => $std->spps->nominal,
-                    'created_at' => Carbon::parse($std->created_at)->format('d-m-Y'),
-                    'updated_at' => Carbon::parse($std->updated_at)->format('d-m-Y'),
-                    'deleted_at' => $std->deleted_at ? Carbon::parse($std->deleted_at)->format('d-m-Y') : null,
-                ]);
-            }
-        }
-        return $data;
-    }
-
 
     public function api_get(Request $request)
     {
         if(!$request->ajax()) abort(404);
-        $student = $this->getStudent();
+        $student = Main::getStudent();
         return Main::generateAPI($student);
     }
 
@@ -140,7 +102,7 @@ class StudentsController extends Controller
         $id = Crypt::decrypt($id);
         $id = preg_replace('/[^0-9]/', '', $id) === "" ? null : intval(preg_replace('/[^0-9]/', '', $id));
 
-        $student = $this->getStudent($id);
+        $student = Main::getStudent([ 'id' => $id]);
         return Main::generateAPI($student);
     }
 
@@ -149,7 +111,7 @@ class StudentsController extends Controller
         $id = Crypt::decrypt($class);
         $id = preg_replace('/[^0-9]/', '', $id) === "" ? null : intval(preg_replace('/[^0-9]/', '', $id));
 
-        $student = $this->getStudent(null,false,$id);
+        $student = Main::getStudent(['class' => $id]);
         return Main::generateAPI($student);
     }
 
@@ -240,7 +202,7 @@ class StudentsController extends Controller
     public function api_getTrashed(Request $request)
     {
         if(!$request->ajax()) abort(404);
-        $student = $this->getStudent(null, true);
+        $student = Main::getStudent(['trash' => true]);
         return Main::generateAPI($student);
     }
 

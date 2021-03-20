@@ -101,7 +101,22 @@ Route::prefix('admin')->name('a.')->group(function(){
             Route::delete('/force-delete', 'Admin\SppController@api_forceDeleteSelected')->name('force-delete');
         });
     });
+
 });
+
+Route::prefix('/transaction')->name('transaction.')->group(function(){
+    Route::get('/', 'Transaction\TransactionController@index')->name('index');
+
+    Route::post('/process', 'Transaction\TransactionController@transactionProcess')->name('process');
+    Route::prefix('/api')->name('api.')->group(function(){
+        Route::get('/student/search/{q?}', 'Transaction\TransactionController@api_searchStudent')->name('students.search');
+        Route::get('/get-transaction/{id?}', 'Transaction\TransactionController@api_getTransaction')->name('get.transaction');
+
+        Route::post('/add-to-cart', 'Transaction\TransactionController@api_addToCartTransaction')->name('add-to-cart-transaction');
+        Route::delete('/remove-from-cart/{id?}', 'Transaction\TransactionController@api_removeFromCartTransaction')->name('remove-from-cart-transaction');
+    });
+});
+
 Route::prefix('worker')->name('w.')->group(function(){
     Route::get('/', 'Worker\HomeController@index')->name('index');
 });
