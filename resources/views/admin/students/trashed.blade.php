@@ -3,6 +3,8 @@
 <link rel="stylesheet" href="/modules/datatables/datatables.min.css">
 <link rel="stylesheet" href="/modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="/modules/datatables/Select-1.2.4/css/select.bootstrap4.min.css">
+
+<link rel="stylesheet" href="/modules/izitoast/css/iziToast.min.css">
 @endsection
 @section('css_custom')
 @endsection
@@ -39,7 +41,7 @@
                     </div>
                 </div>
                 <div class="card-footer">
-                    <button class="btn btn-primary btn-sm" id="studentsRestore"><i class="fa fa-history" aria-hidden="true"></i> Restore</button>
+                    <button class="btn btn-primary btn-sm mr-2" id="studentsRestore"><i class="fa fa-history" aria-hidden="true"></i> Restore</button>
                     <button class="btn btn-danger btn-sm" id="studentsDelete"> <i class="fa fa-trash" aria-hidden="true"></i> Delete</button>
                 </div>
             </div>
@@ -52,6 +54,9 @@
 <script src="/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
 <script src="/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
 <script src="/modules/jquery-ui/jquery-ui.min.js"></script>
+
+<script src="/modules/sweetalert/sweetalert.min.js"></script>
+<script src="/modules/izitoast/js/iziToast.min.js"></script>
 @endsection
 @section('js_custom')
 <script>
@@ -60,6 +65,29 @@
             , sTable = $('#studentList')
             , ssDelete = $('#studentsDelete')
             , ssRestore = $('#studentsRestore')
+
+        const toastSuccessPermanentDelete = () => {
+            return iziToast.success({
+                title: 'Berhasil!'
+                , message: 'Data siswa berhasil dihapus permanent!'
+                , position: 'topRight'
+            })
+        }
+        const toastSuccessRestore = () => {
+            return iziToast.success({
+                title: 'Berhasil!'
+                , message: 'Data siswa berhasil di restore.'
+                , position: 'topRight'
+            })
+        }
+        const toastErrorDataNull = () => {
+            return iziToast.error({
+                title: 'Gagal!'
+                , message: 'Tidak ada data yang dipilih!.'
+                , position: 'topRight'
+            })
+        }
+
 
         const studentDataTable = sTable.DataTable({
             ajax: {
@@ -123,7 +151,11 @@
                 , data: {
                     'id': id
                 }
+                , beforeSend: () => {
+                    loadingOverlay.css("display", "flex").fadeIn('fast')
+                }
                 , success: function(res) {
+                    loadingOverlay.fadeOut('fast')
                     let {
                         data
                         , status
@@ -131,30 +163,57 @@
                     } = JSON.parse(res)
                     if (status) {
                         studentDataTable.ajax.reload()
+                        return toastSuccessRestore()
                     }
+                }
+                , error: function(err, status, msg) {
+                    loadingOverlay.fadeOut('fast')
+                    return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
                 }
             })
         })
         //student Permanent Delete
         sTable.on('click', '.studentPermDelete', function(e) {
             const id = $(this).data('id')
-            $.ajax({
-                url: "{{route('a.students.api.force-delete')}}"
-                , type: 'delete'
-                , data: {
-                    'id': id
-                }
-                , success: function(res) {
-                    let {
-                        data
-                        , status
-                        , lenght
-                    } = JSON.parse(res)
-                    if (status) {
-                        studentDataTable.ajax.reload()
+            swal({
+                    title: 'Apakah Anda yakin?'
+                    , text: 'Saat data dihapus maka data tidak akan bisa dikembalikan.'
+                    , icon: 'warning'
+                    , buttons: true
+                    , dangerMode: true
+                    , showCancelButton: true
+                , })
+                .then((willDelete) => {
+                    if (willDelete) {
+                        $.ajax({
+                            url: "{{route('a.students.api.force-delete')}}"
+                            , type: 'delete'
+                            , data: {
+                                'id': id
+                            }
+                            , beforeSend: () => {
+                                loadingOverlay.css("display", "flex").fadeIn('fast')
+                            }
+                            , success: function(res) {
+                                loadingOverlay.fadeOut('fast')
+                                let {
+                                    data
+                                    , status
+                                    , lenght
+                                } = JSON.parse(res)
+                                if (status) {
+                                    studentDataTable.ajax.reload()
+                                    return toastSuccessPermanentDelete()
+                                }
+                            }
+                            , error: function(err, status, msg) {
+                                loadingOverlay.fadeOut('fast')
+                                return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
+                            }
+                        })
                     }
-                }
-            })
+                    return false
+                })
         })
 
         //Mass action
@@ -166,22 +225,36 @@
                 selectedStudents.push(value.dataset.id)
             })
 
-            $.ajax({
-                url: "{{route('a.students.api.restore')}}"
-                , type: 'PUT'
-                , data: {
-                    'id': selectedStudents
-                }
-                , success: function(res) {
-                    let {
-                        status
-                        , lenght
-                    } = JSON.parse(res)
-                    if (status) {
-                        return studentDataTable.ajax.reload()
+            if (selectedStudents.length > 0) {
+                $.ajax({
+                    url: "{{route('a.students.api.restore')}}"
+                    , type: 'PUT'
+                    , data: {
+                        'id': selectedStudents
                     }
-                }
-            })
+                    , beforeSend: () => {
+                        loadingOverlay.css("display", "flex").fadeIn('fast')
+                    }
+                    , success: function(res) {
+                        loadingOverlay.fadeOut('fast')
+                        let {
+                            status
+                            , lenght
+                        } = JSON.parse(res)
+                        if (status) {
+                            studentDataTable.ajax.reload()
+                            return toastSuccessRestore()
+                        }
+                    }
+                    , error: function(err, status, msg) {
+                        loadingOverlay.fadeOut('fast')
+                        return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
+                    }
+                })
+                return
+            }
+            return toastErrorDataNull()
+
         })
         //Delete
         ssDelete.on('click', function() {
@@ -191,22 +264,47 @@
                 selectedStudents.push(value.dataset.id)
             })
 
-            $.ajax({
-                url: "{{route('a.students.api.force-delete')}}"
-                , type: 'delete'
-                , data: {
-                    'id': selectedStudents
-                }
-                , success: function(res) {
-                    let {
-                        status
-                        , lenght
-                    } = JSON.parse(res)
-                    if (status) {
-                        studentDataTable.ajax.reload()
-                    }
-                }
-            })
+            if (selectedStudents.length > 0) {
+                swal({
+                        title: 'Apakah Anda yakin?'
+                        , text: 'Saat data dihapus maka data tidak akan bisa dikembalikan.'
+                        , icon: 'warning'
+                        , buttons: true
+                        , dangerMode: true
+                        , showCancelButton: true
+                    , })
+                    .then((willDelete) => {
+                        if (willDelete) {
+                            $.ajax({
+                                url: "{{route('a.students.api.force-delete')}}"
+                                , type: 'delete'
+                                , data: {
+                                    'id': selectedStudents
+                                }
+                                , beforeSend: () => {
+                                    loadingOverlay.css("display", "flex").fadeIn('fast')
+                                }
+                                , success: function(res) {
+                                    loadingOverlay.fadeOut('fast')
+                                    let {
+                                        status
+                                        , lenght
+                                    } = JSON.parse(res)
+                                    if (status) {
+                                        studentDataTable.ajax.reload()
+                                        return toastSuccessPermanentDelete()
+                                    }
+                                }
+                                , error: function(err, status, msg) {
+                                    loadingOverlay.fadeOut('fast')
+                                    return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
+                                }
+                            })
+                        }
+                    })
+                return
+            }
+            return toastErrorDataNull()
         })
     })
 

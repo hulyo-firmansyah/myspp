@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SppModel extends Model
 {
-    use softDeletes;
+    // use softDeletes;
 
     protected $table = 'spp';
     protected $primaryKey = 'id_spp';

@@ -8,24 +8,6 @@
 @endsection
 @section('css_custom')
 <style>
-    .loading-overlay {
-        display: none;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        top: 0;
-        z-index: 9998;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0, 0, 0, 0.3);
-    }
-
-    .loading-overlay>span {
-        font-size: 70px;
-        color: var(--white);
-    }
-
     /* .loading-overlay.is-active {
         display: flex;
     } */
@@ -223,11 +205,8 @@
         $('#sNewNominal').inputmask({
             'alias': 'decimal'
             , 'groupSeparator': ','
-            , 'autoGroup': true,
-            // 'digits': 1,
-            // 'digitsOptional': false,
-            // 'placeholder': '-',
-            'prefix': 'Rp. '
+            , 'autoGroup': true
+            , 'prefix': 'Rp. '
             , 'rightAlign': false
             ,
         })
@@ -272,7 +251,6 @@
             }
                 ,]
         })
-        const loadingOverlay = $('#loadingOverlay')
 
         let selectedStudents = []
             , selectedStudentsId = null
@@ -300,7 +278,6 @@
                 })
                     .then((willDelete) => {
                         if (willDelete) {
-
                             $.ajax({
                                 url: "{{route('a.students.api.delete')}}"
                                 , type: 'delete'
@@ -308,18 +285,26 @@
                                 , data: {
                                     id: selectedStudents
                                 }
+                                , beforeSend: () => {
+                                    loadingOverlay.css("display", "flex").fadeIn('fast')
+                                }
                                 , success: function (res) {
+                                    loadingOverlay.fadeOut('fast')
                                     let {
                                         status
                                     } = res
                                     if (status) {
                                         studentsDataTable.ajax.reload()
-                                        iziToast.success({
+                                        return iziToast.success({
                                             title: 'Berhasil!'
                                             , message: 'Data siswa berhasil dihapus.'
                                             , position: 'topRight'
                                         })
                                     }
+                                },
+                                error: function (err, status, msg) {
+                                    loadingOverlay.fadeOut('fast')
+                                    return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
                                 }
                             })
                         }
@@ -327,6 +312,7 @@
                     })
                 return
             }
+
             return iziToast.error({
                 title: 'Gagal'
                 , message: 'Tidak ada data yang dipilih!.'
@@ -395,7 +381,7 @@
                     loadingOverlay.css("display", "flex").fadeIn('fast')
                 }
                 , success: function (res) {
-                    loadingOverlay.fadeUut('fast')
+                    loadingOverlay.fadeOut('fast')
                     const {
                         status
                         , length
@@ -414,10 +400,16 @@
                     }
                 }
                 , error: function (err, status, msg) {
-                    $.each(err.responseJSON.errors, function (i, v) {
-                        $(data[i][0]).addClass('is-invalid')
-                        $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
-                    })
+                    loadingOverlay.fadeOut('fast')
+                    if (err.status === 422) {
+                        $.each(err.responseJSON.errors, function (i, v) {
+                            $(data[i][0]).addClass('is-invalid')
+                            $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
+                        })
+                        return
+                    }
+                    $('#studentAdd').modal('hide')
+                    return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
                 }
             })
         })
@@ -595,6 +587,11 @@
                         $('#studentDetails .modal-dialog .modal-content').slideDown('slow')
                     }
                 }
+                , error: function (err, status, msg) {
+                    loadingOverlay.fadeOut('fast')
+                    $('#studentDetails').modal('hide')
+                    return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
+                }
             })
         })
 
@@ -748,10 +745,16 @@
                     $('#studentDetails').modal('hide')
                 }
                 , error: function (err, status, msg) {
-                    $.each(err.responseJSON.errors, function (i, v) {
-                        $(data[i][0]).addClass('is-invalid')
-                        $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
-                    })
+                    loadingOverlay.fadeOut('fast')
+                    if (err.status === 422) {
+                        $.each(err.responseJSON.errors, function (i, v) {
+                            $(data[i][0]).addClass('is-invalid')
+                            $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
+                        })
+                        return false
+                    }
+                    $('#studentDetails').modal('hide')
+                    return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
                 }
             })
         })
@@ -777,7 +780,11 @@
                             , data: {
                                 id: selectedStudentsId
                             }
+                            , beforeSend: () => {
+                                loadingOverlay.css("display", "flex").fadeIn('fast')
+                            }
                             , success: function (result) {
+                                loadingOverlay.fadeOut('fast')
                                 let {
                                     data
                                     , status
@@ -792,6 +799,11 @@
                                         , position: 'topRight'
                                     })
                                 }
+                            }
+                            , error: function (err, status, msg) {
+                                loadingOverlay.fadeOut('fast')
+                                $('#studentDetails').modal('hide')
+                                return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
                             }
                         })
                     }

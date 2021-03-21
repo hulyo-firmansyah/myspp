@@ -32,13 +32,15 @@ class WorkersController extends Controller
      */
     public function index()
     {
+        $userData = Main::getCurrectUserDetails();
         $worker = UserModel::with('workers')->where('role','worker')->get();
-        return view('admin.workers.index', compact($worker));
+        return view('admin.workers.index', compact($worker, 'userData'));
     }
 
     public function trash()
     {
-        return view('admin.workers.trashed');
+        $userData = Main::getCurrectUserDetails();
+        return view('admin.workers.trashed', compact('userData'));
     }
 
 

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Crypt;
 use App\UserModel;
 use App\StudentModel;
 use App\ClassModel;
+use \Auth;
 
 class Main{
     public static function getRoleWhenLogin($username)
@@ -89,7 +90,7 @@ class Main{
         $options = array_merge($defaults, $options);
         extract($options);
 
-        $student = $trash ? $student = StudentModel::with(['users' => function($query){ return $query->onlyTrashed(); }, 'spps' => function($query){ return $query->onlyTrashed(); }])->onlyTrashed() : $student = StudentModel::with(['users', 'spps', 'classes']);
+        $student = $trash ? $student = StudentModel::with(['users' => function($query){ return $query->onlyTrashed(); }])->onlyTrashed() : $student = StudentModel::with(['users', 'classes']);
 
         if($query){
             $student = $student->where('nisn', 'LIKE', '%'.$query.'%')->orWhere('nama', 'LIKE', '%'.$query.'%')->limit(5)->get();
@@ -154,5 +155,28 @@ class Main{
             default :
                 return '-';
         }
+    }
+    
+    public static function getCurrectUserDetails()
+    {
+        $auth = Auth::user();
+        $role = $auth->role;
+        if($role == 'admin' || $role == 'worker'){
+            $user = UserModel::with('officer')->where('id_user', $auth->id_user)->first();
+            $data = new \stdClass();
+            $data->username = $user->username;
+            $data->email = $user->email;
+            $data->role = $user->role;
+            $data->name = $user->officer->nama_petugas;
+            return $data;
+
+        }
+        $user = UserModel::with('student')->where('id_user', $auth->id_user)->first();
+        $data = new \stdClass();
+        $data->username = $user->username;
+        $data->email = $user->email;
+        $data->role = $user->role;
+        $data->name = $user->student->nama_petugas;
+        return $data;
     }
 }

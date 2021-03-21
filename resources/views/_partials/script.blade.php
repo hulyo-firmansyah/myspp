@@ -16,4 +16,8 @@
 <!-- Template JS File -->
 <script src="/js/scripts.js"></script>
 <script src="/js/custom.js"></script>
+<script>
+    const loadingOverlay = $('#loadingOverlay')
+
+</script>
 @yield('js_custom')

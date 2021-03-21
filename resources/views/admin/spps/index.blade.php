@@ -3,6 +3,8 @@
 <link rel="stylesheet" href="/modules/datatables/datatables.min.css">
 <link rel="stylesheet" href="/modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="/modules/datatables/Select-1.2.4/css/select.bootstrap4.min.css">
+
+<link rel="stylesheet" href="/modules/izitoast/css/iziToast.min.css">
 @endsection
 @section('css_custom')
 @endsection
@@ -10,10 +12,8 @@
 <div class="section-header">
     <h1>SPP</h1>
     <div class="section-header-button">
-        <button class="btn btn-primary" data-target="#sppAdd" data-toggle="modal"><i class="fa fa-plus"
-                aria-hidden="true"></i> Tambah</button>
-        <a href="{{route('a.class.trash')}}" class="btn btn-danger ml-2" title="Recycle Bin"><i class="fa fa-trash"
-                aria-hidden="true"></i></a>
+        <button class="btn btn-primary" data-target="#sppAdd" data-toggle="modal"><i class="fa fa-plus" aria-hidden="true"></i> Tambah</button>
+        {{-- <a href="{{route('a.spps.trash')}}" class="btn btn-danger ml-2" title="Recycle Bin"><i class="fa fa-trash" aria-hidden="true"></i></a> --}}
     </div>
     <div class="section-header-breadcrumb">
         <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
@@ -55,6 +55,8 @@
 <script src="/modules/jquery-ui/jquery-ui.min.js"></script>
 
 <script src="/modules/input-mask/jquery.inputmask.bundle.min.js"></script>
+<script src="/modules/sweetalert/sweetalert.min.js"></script>
+<script src="/modules/izitoast/js/iziToast.min.js"></script>
 @endsection
 @section('js_page')
 
@@ -106,8 +108,7 @@
 
                     <div class="d-flex justify-content-end">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary ml-2"><i class="fa fa-paper-plane"
-                                aria-hidden="true"></i> Kirim</button>
+                        <button type="submit" class="btn btn-primary ml-2"><i class="fa fa-paper-plane" aria-hidden="true"></i> Kirim</button>
                     </div>
                 </form>
             </div>
@@ -123,7 +124,36 @@
 </div>
 
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
+
+        const toastSuccessDelete = () => {
+            return iziToast.success({
+                title: 'Berhasil!'
+                , message: 'Data SPP berhasil dihapus.'
+                , position: 'topRight'
+            })
+        }
+        const toastSuccessEdit = () => {
+            return iziToast.success({
+                title: 'Berhasil!'
+                , message: 'Data SPP berhasil dirubah.'
+                , position: 'topRight'
+            })
+        }
+        const toastSuccessAdd = () => {
+            return iziToast.success({
+                title: 'Berhasil!'
+                , message: 'Tambah data SPP berhasil dilakukan.'
+                , position: 'topRight'
+            })
+        }
+        const toastErrorDataNull = () => {
+            return iziToast.error({
+                title: 'Gagal!'
+                , message: 'Tidak ada data yang dipilih!.'
+                , position: 'topRight'
+            })
+        }
 
         const sppsDataTable = $("#sppsList").DataTable({
             ajax: {
@@ -131,41 +161,40 @@
                 , "dataSrc": "data"
             }
             , "columns": [{
-                title: "#"
-                , "data": null
-                , orderable: false
-                , "render": function (itemdata) {
-                    return `#`
+                    title: "#"
+                    , "data": null
+                    , orderable: false
+                    , "render": function(itemdata) {
+                        return `#`
+                    }
                 }
-            }
                 , {
-                title: "Tahun"
-                , "data": "year"
-            }
-                , {
-                title: "Nominal"
-                , "data": "nominal_formatted"
-            }
-                , {
-                title: "Tingkat"
-                , "data": "step"
-            }
-                , {
-                title: "Periode"
-                , "data": "periode"
-            }
-                , {
-                'data': null
-                , title: 'Action'
-                , wrap: true
-                , orderable: false
-                , "render": function (item) {
-                    return `<button type="button" class="btn btn-primary btn-sm spp-details-trigger" data-id=${item.id} data-toggle="modal" data-target="#sppDetails"><i class="fa fa-info-circle" aria-hidden="true"></i> Details</button>`
+                    title: "Tahun"
+                    , "data": "year"
                 }
-            }
-                ,]
-            ,
-        })
+                , {
+                    title: "Nominal"
+                    , "data": "nominal_formatted"
+                }
+                , {
+                    title: "Tingkat"
+                    , "data": "step"
+                }
+                , {
+                    title: "Periode"
+                    , "data": "periode"
+                }
+                , {
+                    'data': null
+                    , title: 'Action'
+                    , wrap: true
+                    , orderable: false
+                    , "render": function(item) {
+                        return `<button type="button" class="btn btn-primary btn-sm spp-details-trigger" data-id=${item.id} data-toggle="modal" data-target="#sppDetails"><i class="fa fa-info-circle" aria-hidden="true"></i> Details</button>`
+                    }
+                }
+            , ]
+        , })
 
         let selectedSpps = []
             , selectedSppsId = null
@@ -174,66 +203,87 @@
         $('#sppNewNominal').inputmask({
             'alias': 'decimal'
             , 'groupSeparator': ','
-            , 'autoGroup': true,
-            'prefix': 'Rp. '
+            , 'autoGroup': true
+            , 'prefix': 'Rp. '
             , 'rightAlign': false
         })
 
-        $('#sppAdd').on('submit', '#sppNewForm', function (e) {
+        $('#sppAdd').on('submit', '#sppNewForm', function(e) {
             e.preventDefault()
 
             const data = {
-                'periode': ['#sppNewPeriode', e.target[0].value],
-                'steps': ['#sppNewSteps', e.target[1].value],
-                'year': ['#sppNewYear', e.target[2].value],
-                'nominal': ['#sppNewNominal', e.target[3].inputmask.unmaskedvalue()]
+                'periode': ['#sppNewPeriode', e.target[0].value]
+                , 'steps': ['#sppNewSteps', e.target[1].value]
+                , 'year': ['#sppNewYear', e.target[2].value]
+                , 'nominal': ['#sppNewNominal', e.target[3].inputmask.unmaskedvalue()]
             }
 
-            $.each(data, function (i, v) {
+            $.each(data, function(i, v) {
                 $(v[0]).removeClass('is-invalid').next().remove()
             })
 
             $.ajax({
-                url: `{{route('a.spps.api.store')}}`,
-                type: 'post',
-                data: {
-                    'periode': data.periode[1],
-                    'steps': data.steps[1],
-                    'year': data.year[1],
-                    'nominal': data.nominal[1]
-                },
-                success: function (res) {
+                url: `{{route('a.spps.api.store')}}`
+                , type: 'post'
+                , data: {
+                    'periode': data.periode[1]
+                    , 'steps': data.steps[1]
+                    , 'year': data.year[1]
+                    , 'nominal': data.nominal[1]
+                }
+                , beforeSend: () => {
+                    loadingOverlay.css("display", "flex").fadeIn('fast')
+                }
+                , success: function(res) {
+                    const {
+                        status
+                        , length
+                    } = JSON.parse(res)
+                    if (status) {
+                        loadingOverlay.fadeOut('fast')
+                        $('#sppAdd').modal('hide')
+                        sppsDataTable.ajax.reload()
+                        $.each(data, function(i, v) {
+                            $(v[0]).val('')
+                        })
+                        return toastSuccessAdd()
+                    }
+                }
+                , error: function(err, status, msg) {
+                    loadingOverlay.fadeOut('fast')
+                    if (err.status === 422) {
+                        $.each(err.responseJSON.errors, function(i, v) {
+                            $(data[i][0]).addClass('is-invalid')
+                            $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
+                        })
+                        return true
+                    }
                     $('#sppAdd').modal('hide')
-                    sppsDataTable.ajax.reload()
-                    $.each(data, function (i, v) {
-                        $(v[0]).val('')
-                    })
-                },
-                error: function (err) {
-                    $.each(err.responseJSON.errors, function (i, v) {
-                        $(data[i][0]).addClass('is-invalid')
-                        $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
-                    })
+                    return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
                 }
             })
         })
 
-        $('table').on('click', '.spp-details-trigger', function (e) {
+        $('table').on('click', '.spp-details-trigger', function(e) {
             selectedSppsId = $(this).data('id')
         })
 
 
         //modal
         //Detail
-        $('#sppDetails').on('show.bs.modal', function (e) {
+        $('#sppDetails').on('show.bs.modal', function(e) {
             $.ajax({
                 url: `/admin/spps/api/get-details/${selectedSppsId}`
-                , success: function (result) {
+                , beforeSend: () => {
+                    loadingOverlay.css("display", "flex").fadeIn('fast')
+                }
+                , success: function(res) {
+                    loadingOverlay.fadeOut('fast')
                     let {
                         data
                         , status
                         , length
-                    } = JSON.parse(result)
+                    } = JSON.parse(res)
                     selectedSppsData = data[0]
                     $('#sppDetails .modal-dialog .modal-content').html(`
                         <div class="modal-header">
@@ -333,16 +383,21 @@
                         </div>
                     `)
                 }
+                , error: function(err, status, msg) {
+                    loadingOverlay.fadeOut('fast')
+                    $('#sppDetails').modal('hide')
+                    return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
+                }
             })
         })
 
-        $('#sppDetails').on('hide.bs.modal', function (e) {
+        $('#sppDetails').on('hide.bs.modal', function(e) {
             $('#sppDetails .modal-dialog .modal-content').html('')
         })
 
         //action
         //update
-        $('#sppDetails').on('click', '#modalEdit', function (e) {
+        $('#sppDetails').on('click', '#modalEdit', function(e) {
             $('#sppDetails .modal-dialog .modal-content').html(` 
                 <div class="modal-header">
                     <h5>Tambah Pembayaran SPP</h5>
@@ -396,22 +451,22 @@
             $('#sppDetNominal').inputmask({
                 'alias': 'decimal'
                 , 'groupSeparator': ','
-                , 'autoGroup': true,
-                'prefix': 'Rp. '
+                , 'autoGroup': true
+                , 'prefix': 'Rp. '
                 , 'rightAlign': false
             })
         })
-        $('#sppDetails').on('submit', '#sppDetailsForm', function (e) {
+        $('#sppDetails').on('submit', '#sppDetailsForm', function(e) {
             e.preventDefault()
 
             const data = {
-                'periode': ['#sppDetPeriode', e.target[0].value],
-                'steps': ['#sppDetSteps', e.target[1].value],
-                'year': ['#sppDetYear', e.target[2].value],
-                'nominal': ['#sppDetNominal', e.target[3].inputmask.unmaskedvalue()]
+                'periode': ['#sppDetPeriode', e.target[0].value]
+                , 'steps': ['#sppDetSteps', e.target[1].value]
+                , 'year': ['#sppDetYear', e.target[2].value]
+                , 'nominal': ['#sppDetNominal', e.target[3].inputmask.unmaskedvalue()]
             }
 
-            $.each(data, function (i, v) {
+            $.each(data, function(i, v) {
                 $(v[0]).removeClass('is-invalid').next().remove()
             })
 
@@ -419,12 +474,16 @@
                 url: `/admin/spps/api/update/${selectedSppsId}`
                 , type: 'PUT'
                 , data: {
-                    'periode': data.periode[1],
-                    'steps': data.steps[1],
-                    'year': data.year[1],
-                    'nominal': data.nominal[1]
+                    'periode': data.periode[1]
+                    , 'steps': data.steps[1]
+                    , 'year': data.year[1]
+                    , 'nominal': data.nominal[1]
                 }
-                , success: function (res) {
+                , beforeSend: () => {
+                    loadingOverlay.css("display", "flex").fadeIn('fast')
+                }
+                , success: function(res) {
+                    loadingOverlay.fadeOut('fast')
                     const {
                         data
                         , status
@@ -432,35 +491,69 @@
                     } = JSON.parse(res)
                     if (status) {
                         sppsDataTable.ajax.reload()
+                        $('#sppDetails').modal('hide')
+                        return toastSuccessEdit()
+                    }
+                }
+                , error: function(err, status, msg) {
+                    if (err.status === 422) {
+                        $.each(err.responseJSON.errors, function(i, v) {
+                            $(data[i][0]).addClass('is-invalid')
+                            $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
+                        })
+                        return true
                     }
                     $('#sppDetails').modal('hide')
-                }
-                , error: function (err, status, msg) {
-                    $.each(err.responseJSON.errors, function (i, v) {
-                        $(data[i][0]).addClass('is-invalid')
-                        $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
-                    })
+                    return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
                 }
             })
         })
 
         //delete
-        $('#sppDetails').on('click', '#modalDelete', function (e) {
-            $.ajax({
-                url: "{{route('a.spps.api.delete')}}",
-                type: 'delete',
-                dataType: "JSON",
-                data: {
-                    id: selectedSppsId
-                },
-                success: function (result) {
-                    let { data, status, length } = result
-                    if (status) {
-                        $('#sppDetails').modal('hide')
-                        sppsDataTable.ajax.reload()
+        $('#sppDetails').on('click', '#modalDelete', function(e) {
+            swal({
+                    title: 'Apakah Anda yakin?'
+                    , text: 'Terdapat Transaksi pada SPP ini. Jika Anda menghapus data spp maka data transaksi juga akan terhapus dan tidak akan bisa dikembalikan.'
+                    , icon: 'warning'
+                    , buttons: true
+                    , dangerMode: true
+                    , showCancelButton: true
+                    , reverseButtons: true
+                , })
+                .then((willDelete) => {
+                    if (willDelete) {
+                        $.ajax({
+                            url: "{{route('a.spps.api.delete')}}"
+                            , type: 'delete'
+                            , dataType: "JSON"
+                            , data: {
+                                id: selectedSppsId
+                            }
+                            , beforeSend: () => {
+                                loadingOverlay.css("display", "flex").fadeIn('fast')
+                            }
+                            , success: function(result) {
+                                loadingOverlay.fadeOut('fast')
+                                let {
+                                    data
+                                    , status
+                                    , length
+                                } = result
+                                if (status) {
+                                    $('#sppDetails').modal('hide')
+                                    sppsDataTable.ajax.reload()
+                                    return toastSuccessDelete()
+                                }
+                            }
+                            , error: function(err, status, msg) {
+                                loadingOverlay.fadeOut('fast')
+                                $('#sppDetails').modal('hide')
+                                return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
+                            }
+                        })
                     }
-                }
-            })
+                    return false
+                })
         })
     })
 

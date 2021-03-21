@@ -29,12 +29,14 @@ class ClassController extends Controller
      */
     public function index()
     {
-        return view('admin.class.index');
+        $userData = Main::getCurrectUserDetails();
+        return view('admin.class.index', compact('userData'));
     }
 
     public function trash()
     {
-        return view('admin.class.trashed');
+        $userData = Main::getCurrectUserDetails();
+        return view('admin.class.trashed', compact('userData'));
     }
 
     

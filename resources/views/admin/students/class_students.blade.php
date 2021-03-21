@@ -3,6 +3,8 @@
 <link rel="stylesheet" href="/modules/datatables/datatables.min.css">
 <link rel="stylesheet" href="/modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="/modules/datatables/Select-1.2.4/css/select.bootstrap4.min.css">
+
+<link rel="stylesheet" href="/modules/izitoast/css/iziToast.min.css">
 @endsection
 @section('css_custom')
 @endsection
@@ -56,6 +58,8 @@
 <script src="/modules/jquery-ui/jquery-ui.min.js"></script>
 
 <script src="/modules/input-mask/jquery.inputmask.bundle.min.js"></script>
+<script src="/modules/sweetalert/sweetalert.min.js"></script>
+<script src="/modules/izitoast/js/iziToast.min.js"></script>
 @endsection
 @section('js_page')
 @endsection
@@ -182,6 +186,35 @@
             , 'rightAlign': false
         , })
 
+        const toastSuccessDelete = () => {
+            return iziToast.success({
+                title: 'Berhasil!'
+                , message: 'Data siswa berhasil dihapus.'
+                , position: 'topRight'
+            })
+        }
+        const toastSuccessEdit = () => {
+            return iziToast.success({
+                title: 'Berhasil!'
+                , message: 'Data siswa berhasil dirubah.'
+                , position: 'topRight'
+            })
+        }
+        const toastErrorDataNull = () => {
+            return iziToast.error({
+                title: 'Gagal!'
+                , message: 'Tidak ada data yang dipilih!.'
+                , position: 'topRight'
+            })
+        }
+        const toastSuccessAdd = () => {
+            return iziToast.success({
+                title: 'Berhasil!'
+                , message: 'Tambah data siswa berhasil dilakukan.'
+                , position: 'topRight'
+            })
+        }
+
         const studentsDataTable = $("#studentsList").DataTable({
             ajax: {
                 "url": "{{route('a.students.api.get.class.student', ['class' => $perclass->class_id])}}"
@@ -238,23 +271,46 @@
             })
 
             if (selectedStudents.length > 0) {
-                $.ajax({
-                    url: "{{route('a.students.api.delete')}}"
-                    , type: 'delete'
-                    , dataType: "JSON"
-                    , data: {
-                        id: selectedStudents
-                    }
-                    , success: function(res) {
-                        let {
-                            status
-                        } = res
-                        if (status) {
-                            studentsDataTable.ajax.reload()
+                swal({
+                        title: 'Apakah Anda yakin?'
+                        , text: 'Saat data dihapus Anda masih bisa melihatnya pada recycle bin.'
+                        , icon: 'warning'
+                        , buttons: true
+                        , dangerMode: true
+                        , showCancelButton: true
+                    , })
+                    .then((willDelete) => {
+                        if (willDelete) {
+                            $.ajax({
+                                url: "{{route('a.students.api.delete')}}"
+                                , type: 'delete'
+                                , dataType: "JSON"
+                                , data: {
+                                    id: selectedStudents
+                                }
+                                , beforeSend: () => {
+                                    loadingOverlay.css("display", "flex").fadeIn('fast')
+                                }
+                                , success: function(res) {
+                                    loadingOverlay.fadeOut('fast')
+                                    let {
+                                        status
+                                    } = res
+                                    if (status) {
+                                        studentsDataTable.ajax.reload()
+                                        return toastSuccessDelete()
+                                    }
+                                }
+                                , error: function(err, status, msg) {
+                                    loadingOverlay.fadeOut('fast')
+                                    return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
+                                }
+                            })
                         }
-                    }
-                })
+                    })
+                return false
             }
+            return toastErrorDataNull()
         })
 
         $('#studentsCheckbox').change(function() {
@@ -313,7 +369,11 @@
                     , 'student_year': data.student_year[1]
                     , 'student_nominal': data.student_nominal[1]
                 }
+                , beforeSend: () => {
+                    loadingOverlay.css("display", "flex").fadeIn('fast')
+                }
                 , success: function(res) {
+                    loadingOverlay.fadeOut('fast')
                     const {
                         status
                         , length
@@ -324,13 +384,20 @@
                             $(v[0]).val('')
                         })
                         $('#studentAdd').modal('hide')
+                        return toastSuccessAdd()
                     }
                 }
                 , error: function(err, status, msg) {
-                    $.each(err.responseJSON.errors, function(i, v) {
-                        $(data[i][0]).addClass('is-invalid')
-                        $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
-                    })
+                    loadingOverlay.fadeOut('fast')
+                    if (err.status === 422) {
+                        $.each(err.responseJSON.errors, function(i, v) {
+                            $(data[i][0]).addClass('is-invalid')
+                            $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
+                        })
+                        return false
+                    }
+                    $('#studentAdd').modal('hide')
+                    return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
                 }
             })
         })
@@ -339,12 +406,16 @@
         $('#studentDetails').on('show.bs.modal', function(e) {
             $.ajax({
                 url: `/admin/students/api/get-details/${selectedStudentsId}`
-                , success: function(result) {
+                , beforeSend: () => {
+                    loadingOverlay.css("display", "flex").fadeIn('fast')
+                }
+                , success: function(res) {
+                    loadingOverlay.fadeOut('fast')
                     let {
                         data
                         , status
                         , length
-                    } = JSON.parse(result)
+                    } = JSON.parse(res)
                     selectedStudentsData = data[0]
                     if (status) {
                         $('#studentDetails .modal-dialog .modal-content').html(`
@@ -503,6 +574,11 @@
                         `)
                     }
                 }
+                , error: function(err, status, msg) {
+                    loadingOverlay.fadeOut('fast')
+                    $('#studentDetails').modal('hide')
+                    return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
+                }
             })
         })
 
@@ -631,7 +707,11 @@
                     , 'student_year': 0
                     , 'student_nominal': 0
                 }
+                , beforeSend: () => {
+                    loadingOverlay.css("display", "flex").fadeIn('fast')
+                }
                 , success: function(res) {
+                    loadingOverlay.fadeOut('fast')
                     const {
                         data
                         , status
@@ -639,39 +719,69 @@
                     } = JSON.parse(res)
                     if (status) {
                         studentsDataTable.ajax.reload()
+                        $('#studentDetails').modal('hide')
+                        return toastSuccessEdit()
                     }
-                    $('#studentDetails').modal('hide')
                 }
                 , error: function(err, status, msg) {
-                    $.each(err.responseJSON.errors, function(i, v) {
-                        $(data[i][0]).addClass('is-invalid')
-                        $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
-                    })
+                    loadingOverlay.fadeOut('fast')
+                    if (err.status === 422) {
+                        $.each(err.responseJSON.errors, function(i, v) {
+                            $(data[i][0]).addClass('is-invalid')
+                            $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
+                        })
+                        return false
+                    }
+                    $('#studentDetails').modal('hide')
+                    return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
                 }
             })
         })
 
         //delete
         $('#studentDetails').on('click', '#modalDelete', function(e) {
-            $.ajax({
-                url: "{{route('a.students.api.delete')}}"
-                , type: 'delete'
-                , dataType: "JSON"
-                , data: {
-                    id: selectedStudentsId
-                }
-                , success: function(result) {
-                    let {
-                        data
-                        , status
-                        , length
-                    } = result
-                    if (status) {
-                        $('#studentDetails').modal('hide')
-                        studentsDataTable.ajax.reload()
+            swal({
+                    title: 'Apakah Anda yakin?'
+                    , text: 'Saat data dihapus Anda masih bisa melihatnya pada recycle bin.'
+                    , icon: 'warning'
+                    , buttons: true
+                    , dangerMode: true
+                    , showCancelButton: true
+                , })
+                .then((willDelete) => {
+                    if (willDelete) {
+                        $.ajax({
+                            url: "{{route('a.students.api.delete')}}"
+                            , type: 'delete'
+                            , dataType: "JSON"
+                            , data: {
+                                id: selectedStudentsId
+                            }
+                            , beforeSend: () => {
+                                loadingOverlay.css("display", "flex").fadeIn('fast')
+                            }
+                            , success: function(res) {
+                                loadingOverlay.fadeOut('fast')
+                                let {
+                                    data
+                                    , status
+                                    , length
+                                } = res
+                                if (status) {
+                                    $('#studentDetails').modal('hide')
+                                    studentsDataTable.ajax.reload()
+                                    return toastSuccessDelete()
+                                }
+                            }
+                            , error: function(err, status, msg) {
+                                loadingOverlay.fadeOut('fast')
+                                $('#studentDetails').modal('hide')
+                                return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
+                            }
+                        })
                     }
-                }
-            })
+                    return false
+                })
         })
     })
 

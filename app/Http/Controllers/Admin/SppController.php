@@ -42,12 +42,14 @@ class SppController extends Controller
      */
     public function index()
     {
-        return view('admin.spps.index');
+        $userData = Main::getCurrectUserDetails();
+        return view('admin.spps.index', compact('userData'));
     }
 
     public function trash()
     {
-        return view('admin.spps.trashed');
+        $userData = Main::getCurrectUserDetails();
+        return view('admin.spps.trashed', compact('userData'));
     }
 
     //pilih pembayaran : Pembayaran spp kelas XXXX Tahun XXXX

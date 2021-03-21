@@ -15,6 +15,11 @@ use App\StudentModel;
 
 class StudentsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['auth', 'checkrole:admin']);
+    }
+
     //Validation
     private function term($request, $id=null)
     {
@@ -41,22 +46,24 @@ class StudentsController extends Controller
     public function index()
     {
         $data = $this->getClass();
-
-        return view('admin.students.index', compact('data'));
+        $userData = Main::getCurrectUserDetails();
+        return view('admin.students.index', compact('data', 'userData'));
     }
 
     public function studentsByClass($class)
     {   
+        $userData = Main::getCurrectUserDetails();
         $class = Crypt::decrypt($class);
         $class = preg_replace('/[^0-9]/', '', $class) === "" ? null : intval(preg_replace('/[^0-9]/', '', $class));
         $perclass = $this->getClass($class);
         $data = $this->getClass();
-        return view('admin.students.class_students', compact('perclass', 'data'));
+        return view('admin.students.class_students', compact('perclass', 'data', 'userData'));
     }
 
     public function trash()
     {
-        return view('admin.students.trashed');
+        $userData = Main::getCurrectUserDetails();
+        return view('admin.students.trashed', compact('userData'));
     }
 
 
@@ -217,9 +224,13 @@ class StudentsController extends Controller
             return intval($temp);
         });
 
-        $data = StudentModel::whereIn('id_siswa', $id->toArray())->with(['users' => function($query){ return $query->onlyTrashed(); }, 'spps' => function($query){ return $query->onlyTrashed(); }])->onlyTrashed()->get();
+        $data = StudentModel::whereIn('id_siswa', $id->toArray())
+            ->with([
+                'users' => function($query){ return $query->onlyTrashed(); }, 
+                // 'spps' => function($query){ return $query->onlyTrashed(); }
+            ])->onlyTrashed()->get();
         foreach(Main::genArray($data) as $dt){
-            $dt->spps()->restore();
+            // $dt->spps()->restore();
             $dt->users()->restore();
             $dt->restore();
         }
@@ -237,9 +248,13 @@ class StudentsController extends Controller
             return intval($temp);
         });
 
-        $data = StudentModel::whereIn('id_siswa', $id->toArray())->with(['users' => function($query){ return $query->onlyTrashed(); }, 'spps' => function($query){ return $query->onlyTrashed(); }])->onlyTrashed()->get();
+        $data = StudentModel::whereIn('id_siswa', $id->toArray())
+            ->with([
+                'users' => function($query){ return $query->onlyTrashed(); }, 
+                // 'spps' => function($query){ return $query->onlyTrashed(); }
+            ])->onlyTrashed()->get();
         foreach(Main::genArray($data) as $dt){
-            $dt->spps()->forceDelete();
+            // $dt->spps()->forceDelete();
             $dt->users()->forceDelete();
             $dt->forceDelete();
         }

@@ -24,7 +24,8 @@ class TransactionController extends Controller
     
     public function index()
     {   
-        return view('transaction.index');
+        $userData = Main::getCurrectUserDetails();
+        return view('transaction.index', compact('userData'));
     }
 
     public function transactionProcess(Request $request)

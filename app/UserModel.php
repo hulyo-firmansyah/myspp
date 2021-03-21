@@ -20,6 +20,7 @@ class UserModel extends Authenticatable
         'password',
         'email',
         'role',
+        'data_of',
         'email_verified_at'
     ];
 
@@ -34,6 +35,16 @@ class UserModel extends Authenticatable
     public function workers()
     {
         return $this->hasOne(AdminModel::class, 'data_of', 'id_user');
+    }
+
+    public function officer()
+    {
+        return $this->hasOne(AdminModel::class, 'data_of', 'id_user');
+    }
+
+    public function student()
+    {
+        return $this->hasOne(StudentModel::class, 'data_of', 'id_user');
     }
 
     public function admin()

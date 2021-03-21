@@ -15,6 +15,7 @@ class HomeController extends Controller
 
     public function index(Request $request)
     {
-        return view('admin.index');
+        $userData = Main::getCurrectUserDetails();
+        return view('admin.index', compact('userData'));
     }
 }
