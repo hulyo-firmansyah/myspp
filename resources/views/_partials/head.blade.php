@@ -25,5 +25,25 @@
     gtag('config', 'UA-94034622-3');
 
 </script>
+<style>
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: 0;
+        z-index: 9998;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .loading-overlay>span {
+        font-size: 70px;
+        color: var(--white);
+    }
+
+</style>
 <!-- /END GA -->
 @yield('css_custom')

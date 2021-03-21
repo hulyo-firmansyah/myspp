@@ -6,10 +6,13 @@
 </head>
 
 <body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <span class="fas fa-spinner fa-3x fa-spin"></span>
+    </div>
     <div id="app">
         <div class="main-wrapper main-wrapper-1">
             @include('_partials.navbar')
-            
+
             @include('_partials.sidebar')
 
             <!-- Main Content -->
@@ -18,7 +21,7 @@
                     @yield('content')
                 </section>
             </div>
-            
+
             @include('_partials.footer')
         </div>
     </div>
@@ -30,6 +33,7 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         })
+
     </script>
 </body>
 </html>
