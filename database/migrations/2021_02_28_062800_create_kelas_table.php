@@ -18,7 +18,11 @@ class CreateKelasTable extends Migration
             $table->increments('id_kelas', 11);
             $table->string('nama_kelas', 10);
             $table->integer('tingkatan');
-            $table->string('kompetensi_keahlian', 50);
+            $table->integer('id_kompetensi_keahlian')->unsigned();
+            $table->foreign('id_kompetensi_keahlian')
+                ->cascadeOnDelete()
+                ->references('id_kompetensi_keahlian')
+                ->on('kompetensi_keahlian');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -26,7 +30,7 @@ class CreateKelasTable extends Migration
         DB::table('kelas')->insert([
             'nama_kelas' => 'Default',
             'tingkatan' => 10,
-            'kompetensi_keahlian' => 'RPL 1',
+            'id_kompetensi_keahlian' => 1,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
         ]);
