@@ -35,6 +35,7 @@ class CreatePembayaranTable extends Migration
                 ->references('id_spp')
                 ->on('spp');
             $table->integer('jumlah_bayar')->length(11);
+            $table->enum('jenis_pembayaran', ['cash', 'transfer', 'gopay', 'ovo', 'indomaret', 'alfamart']);
             $table->timestamps();
             $table->softDeletes();
         });
