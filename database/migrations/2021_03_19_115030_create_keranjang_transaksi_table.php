@@ -20,6 +20,11 @@ class CreateKeranjangTransaksiTable extends Migration
                 ->cascadeOnDelete()
                 ->references('id_spp')
                 ->on('spp');
+            $table->integer('id_petugas')->length(11)->unsigned();
+            $table->foreign('id_petugas')
+                ->cascadeOnDelete()
+                ->references('id_petugas')
+                ->on('petugas');
             $table->integer('id_siswa')->length(11)->unsigned();
             $table->foreign('id_siswa')
                 ->cascadeOnDelete()
