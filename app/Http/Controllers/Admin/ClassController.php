@@ -15,11 +15,33 @@ class ClassController extends Controller
     //Validation
     private function term($request, $id=null)
     {
-        return $this->validate($request, [
+        $this->validate($request, [
             'class_name' => 'required|min:3|max:10|unique:kelas,nama_kelas,'.$id.',id_kelas',
-            'class_steps' => 'required|numeric',
-            'class_competence' => 'required|max:50|unique:kelas,kompetensi_keahlian,'.$id.',id_kelas'
+            'class_steps' => 'required',
+            'class_competence' => 'required'
         ]);
+        
+        $steps = Crypt::decrypt($request->class_steps);
+        $steps = preg_replace('/[^0-9]/', '', $steps) === "" ? null : intval(preg_replace('/[^0-9]/', '', $steps));
+        $competence = Crypt::decrypt($request->class_competence);
+        $competence = preg_replace('/[^0-9]/', '', $competence) === "" ? null : intval(preg_replace('/[^0-9]/', '', $competence));
+
+        $checkSteps = StepsModel::where('id_tingkatan', $steps)->first();
+        if(!$checkSteps) throw ValidationException::withMessages(['class_steps' => ['Data tingkatan kelas ini tidak ada!']]);
+        $checkCompetence = CompetenceModel::where('id_kompetensi_keahlian', $competence)->first();
+        if(!$checkCompetence) throw ValidationException::withMessages(['class_competence' => ['Data kompetensi keahlian ini tidak ada!']]);
+
+        $getClass = ClassModel::where('id_tingkatan', $steps)->where('id_kompetensi_keahlian', $competence);
+        $id ? $getClass = $getClass->where('id_kelas', '!=', $id)->first() : $getClass = $getClass->first();
+        $classNotValid = $getClass ? true : false;
+
+        if($classNotValid){
+            $error = ValidationException::withMessages([
+                'class_steps' => ['Data pada tingkatan dan kompetensi keahlian ini sudah diisi'],
+                'class_competence' => ['Data pada tingkatan dan kompetensi keahlian ini sudah diisi'],
+            ]);
+            throw $error;
+        }
     }
 
     /**
