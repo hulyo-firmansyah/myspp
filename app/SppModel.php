@@ -17,4 +17,9 @@ class SppModel extends Model
         'periode',
         'tingkat'
     ];
+
+    public function step()
+    {
+        return $this->belongsTo(StepsModel::class, 'id_tingkatan', 'id_tingkatan');
+    }
 }
