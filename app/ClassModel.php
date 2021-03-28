@@ -13,8 +13,8 @@ class ClassModel extends Model
     protected $primaryKey = 'id_kelas';
     protected $fillable = [
         'nama_kelas',
-        'tingkatan',
-        'kompetensi_keahlian'
+        'id_tingkatan',
+        'id_kompetensi_keahlian'
     ];
 
     public function students()
@@ -22,11 +22,18 @@ class ClassModel extends Model
         return $this->hasMany(StudentModel::class, 'id_kelas', 'id_kelas');
     }
 
+    public function competence()
+    {
+        return $this->belongsTo(CompetenceModel::class, 'id_kompetensi_keahlian', 'id_kompetensi_keahlian');
+    }
+
+    public function step()
+    {
+        return $this->belongsTo(StepsModel::class, 'id_tingkatan', 'id_tingkatan');
+    }
+
     public function studentUser()
     {
-        //kelas //mechanic
-        //student //car // id_kelas
-        //user //owner
         return $this->hasManyThrough(
             UserModel::class,
             StudentModel::class, 
