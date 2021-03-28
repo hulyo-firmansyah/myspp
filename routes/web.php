@@ -117,6 +117,14 @@ Route::prefix('/transaction')->name('transaction.')->group(function(){
     });
 });
 
+Route::prefix('/payment-history')->name('history.')->group(function(){
+    Route::get('/', 'History\PaymentHistoryController@index')->name('index');
+
+    Route::prefix('/api')->name('api.')->group(function(){
+        Route::get('/get-history', 'History\PaymentHistoryController@api_getHistory')->name('get.history');
+    });
+});
+
 Route::prefix('worker')->name('w.')->group(function(){
     Route::get('/', 'Worker\HomeController@index')->name('index');
 });
