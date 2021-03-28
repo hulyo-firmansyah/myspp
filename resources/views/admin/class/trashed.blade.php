@@ -10,7 +10,8 @@
 @endsection
 @section('content')
 <div class="section-header">
-    <a href="{{route('a.class.index')}}" class="btn btn-primary mr-3"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</a>
+    <a href="{{route('a.class.index')}}" class="btn btn-primary mr-3"><i class="fa fa-arrow-left"
+            aria-hidden="true"></i> Back</a>
     <h1>Keranjang Sampah(Kelas)</h1>
     <div class="section-header-breadcrumb">
         <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
@@ -41,8 +42,10 @@
                     </div>
                 </div>
                 {{-- <div class="card-footer">
-                    <button class="btn btn-primary btn-sm" id="classesRestore"><i class="fa fa-history" aria-hidden="true"></i> Restore</button>
-                    <button class="btn btn-danger btn-sm" id="classesDelete"> <i class="fa fa-trash" aria-hidden="true"></i> Delete</button>
+                    <button class="btn btn-primary btn-sm" id="classesRestore"><i class="fa fa-history"
+                            aria-hidden="true"></i> Restore</button>
+                    <button class="btn btn-danger btn-sm" id="classesDelete"> <i class="fa fa-trash"
+                            aria-hidden="true"></i> Delete</button>
                 </div> --}}
             </div>
         </div>
@@ -60,7 +63,7 @@
 @endsection
 @section('js_custom')
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         const
             newClassModal = $('#classAdd')
             , newClass = $('#clssNewForm')
@@ -96,10 +99,10 @@
         let SwalTemplate = (warning = false) => {
             return {
                 title: 'Apakah Anda Yakin?'
-                , text: `${(warning 
-                ? 
+                , text: `${(warning
+                    ?
                     'Kelas ini terdapat beberapa data siswa, jika Anda menghapus data kelas maka data siswa akan terhapus. Tetapi Anda tetap dapat mengembalikannya dari recycle bin.'
-                : 
+                    :
                     'Saat data dihapus maka data tidak akan bisa dikembalikan.')}`
                 , icon: 'warning'
                 , buttons: true
@@ -118,51 +121,57 @@
                 , "dataSrc": "data"
             }
             , "columns": [{
-                    //title: "<input type='checkbox' id='classesCheckbox'>",
-                    title: "#"
-                    , "data": null
-                    , orderable: false
-                    , "render": function(itemdata) {
-                        //return `<input type='checkbox' class="class-checkbox" data-id=${itemdata.id}>`
-                        return `#`
-                    }
+                //title: "<input type='checkbox' id='classesCheckbox'>",
+                title: "#"
+                , "data": null
+                , orderable: false
+                , "render": function (itemdata) {
+                    //return `<input type='checkbox' class="class-checkbox" data-id=${itemdata.id}>`
+                    return `#`
                 }
+            }
                 , {
-                    title: "Nama Kelas"
-                    , "data": "class_name"
+                title: "Nama Kelas"
+                , "data": "class_name"
+            }
+                , {
+                title: "Kelas"
+                , "data": null
+                , "render": item => {
+                    return item.steps.map((v, i) => v.selected ? v.steps : null).join('')
                 }
+            }
                 , {
-                    title: "Kelas"
-                    , "data": "steps"
+                title: "Kompetensi Keahlian"
+                , "data": null
+                , "render": item => {
+                    return item.competence.map((v, i) => v.selected ? v.competence : null).join('')
                 }
+            }
                 , {
-                    title: "Kompetensi Keahlian"
-                    , "data": "competence"
-                }
+                title: "Murid"
+                , "data": "student_count"
+            }
                 , {
-                    title: "Murid"
-                    , "data": "student_count"
-                }
-                , {
-                    'data': null
-                    , title: 'Action'
-                    , wrap: true
-                    , orderable: false
-                    , "render": function(item) {
-                        selectedClassStudentCount = item.student_count
-                        return `
+                'data': null
+                , title: 'Action'
+                , wrap: true
+                , orderable: false
+                , "render": function (item) {
+                    selectedClassStudentCount = item.student_count
+                    return `
                         <button type="button" class="btn btn-primary btn-sm classRestore" title="Restore" data-id=${item.id}><i class="fa fa-history" aria-hidden="true" title="Restore"></i></button>
                         <button type="button" class="btn btn-danger btn-sm classPermDelete" title="Permanent Delete" data-id=${item.id}><i class="fa fa-trash" aria-hidden="true" title="Delete Permanent"></i></button>
                     `
-                    }
                 }
+            }
             ]
         })
         //END READ
 
         //UPDATE
         /*Restore*/
-        $('#classList').on('click', '.classRestore', function(e) {
+        $('#classList').on('click', '.classRestore', function (e) {
             const id = $(this).data('id')
             $.ajax({
                 url: "{{route('a.class.api.restore')}}"
@@ -173,7 +182,7 @@
                 , beforeSend: () => {
                     loadingOverlay.css("display", "flex").fadeIn('fast')
                 }
-                , success: function(res) {
+                , success: function (res) {
                     loadingOverlay.fadeOut('fast')
                     let {
                         data
@@ -185,7 +194,7 @@
                         return toastSuccessRestore()
                     }
                 }
-                , error: function(err, status, msg) {
+                , error: function (err, status, msg) {
                     loadingOverlay.fadeOut('fast')
                     return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
                 }
@@ -235,7 +244,7 @@
         //END UPDATE
 
         //DELETE
-        $('#classList').on('click', '.classPermDelete', function(e) {
+        $('#classList').on('click', '.classPermDelete', function (e) {
             const id = $(this).data('id')
             swal(SwalTemplate((selectedClassStudentCount > 0 ? true : false)))
                 .then((willDelete) => {
@@ -249,7 +258,7 @@
                             , beforeSend: () => {
                                 loadingOverlay.css("display", "flex").fadeIn('fast')
                             }
-                            , success: function(res) {
+                            , success: function (res) {
                                 loadingOverlay.fadeOut('fast')
                                 let {
                                     data
@@ -261,7 +270,7 @@
                                     return toastSuccessPermanentDelete()
                                 }
                             }
-                            , error: function(err, status, msg) {
+                            , error: function (err, status, msg) {
                                 loadingOverlay.fadeOut('fast')
                                 return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
                             }
@@ -325,7 +334,7 @@
         */
         //END DELETE
 
-        $('#classesCheckbox').change(function(e) {
+        $('#classesCheckbox').change(function (e) {
             const check = $(this).is(':checked')
             if (check) {
                 $('.class-checkbox').prop('checked', true);

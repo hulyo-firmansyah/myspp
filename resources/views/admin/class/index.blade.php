@@ -45,7 +45,8 @@
                     </div>
                 </div>
                 {{-- <div class="card-footer">
-                    <button class="btn btn-danger btn-sm" id="classesDelete"><i class="fa fa-trash" aria-hidden="true"></i> Delete</button>
+                    <button class="btn btn-danger btn-sm" id="classesDelete"><i class="fa fa-trash"
+                            aria-hidden="true"></i> Delete</button>
                 </div> --}}
             </div>
         </div>
@@ -78,21 +79,33 @@
             </div>
             <div class="modal-body">
                 <form method="post" action="/admin/class/add" id="clssNewForm">
-                    <div class="form-group">
-                        <label for="clssNewClassName">Nama Kelas</label>
-                        <input type="text" class="form-control" id="clssNewClassName" placeholder="">
-                    </div>
-                    <div class="form-group">
-                        <label for="classNewSteps">Tingkatan</label>
-                        <select class="form-control" name="" id="classNewSteps">
-                            <option value="10">X</option>
-                            <option value="11">XI</option>
-                            <option value="12">XII</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="clssNewKompetensi">Kompetensi Keahlian</label>
-                        <input type="text" class="form-control" id="clssNewKompetensi" placeholder="">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="clssNewClassName">Nama Kelas</label>
+                                <input type="text" class="form-control" id="clssNewClassName" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-4">
+                            <div class="form-group">
+                                <label for="classNewSteps">Tingkatan</label>
+                                <select class="form-control" name="" id="clssNewSteps">
+                                    @foreach($classData->steps as $i => $stp)
+                                    <option value="{{$stp['id']}}">{{$stp['steps']}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-8">
+                            <div class="form-group">
+                                <label for="clssNewKompetensi">Kompetensi Keahlian</label>
+                                <select class="form-control" name="" id="clssNewKompetensi">
+                                    @foreach($classData->competence as $i => $cptn)
+                                    <option value="{{$cptn['id']}}">{{$cptn['competence']}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="d-flex justify-content-end">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
@@ -145,11 +158,11 @@
         let SwalTemplate = (warning = false) => {
             return {
                 title: 'Apakah Anda Yakin?'
-                , text: `${(warning 
-                ? 
+                , text: `${(warning
+                    ?
                     'Kelas ini terdapat beberapa data siswa, jika Anda menghapus data kelas maka data siswa akan terhapus. Tetapi Anda tetap dapat mengembalikannya dari recycle bin.'
-                : 
-                    'Saat data dihapus maka data tidak akan bisa dikembalikan.')}`
+                    :
+                    'Saat data dihapus maka Anda tetap dapat mengembalikannya dari recycle bin.')}`
                 , icon: 'warning'
                 , buttons: true
                 , dangerMode: true
@@ -160,7 +173,7 @@
             CRUD
         */
 
-        //CREATE
+        /* Create */
         newClass.on('submit', function(e) {
             e.preventDefault()
             const data = {
@@ -202,6 +215,7 @@
                     loadingOverlay.fadeOut('fast')
                     if (err.status === 422) {
                         $.each(err.responseJSON.errors, function(i, v) {
+                            console.log(data[i][0])
                             $(data[i][0]).addClass('is-invalid')
                             $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
                         })
@@ -212,9 +226,9 @@
                 }
             })
         })
-        //ENDCREATE
+        /* End Create */
 
-        //READ
+        /* Read */
         const classDataTable = $('#classList').DataTable({
             ajax: {
                 "url": "{{route('a.class.api.get')}}"
@@ -236,11 +250,17 @@
                 }
                 , {
                     title: "Kelas"
-                    , "data": "steps"
+                    , "data": null
+                    , "render": item => {
+                        return item.steps.map((v, i) => v.selected ? v.steps : null).join('')
+                    }
                 }
                 , {
                     title: "Kompetensi Keahlian"
-                    , "data": "competence"
+                    , "data": null
+                    , "render": item => {
+                        return item.competence.map((v, i) => v.selected ? v.competence : null).join('')
+                    }
                 }
                 , {
                     title: "Murid"
@@ -306,21 +326,21 @@
                                     </div>
                                     <div class="desc">
                                         <div class="font-weight-bold">Kelas</div>
-                                        <div>${data[0].steps}</div>
+                                        <div>${data[0].steps.map((v, i) => v.selected ? v.steps : null).join('')}</div>
                                     </div>
                                 </div>
                                 <div class="d-flex py-2">
                                     <div class="icon mr-3">
-                                        <i class="fas fa-envelope"></i>
+                                        <i class="fas fa-user-graduate"></i>
                                     </div>
                                     <div class="desc">
                                         <div class="font-weight-bold">Kompetensi Keahlian</div>
-                                        <div>${data[0].competence}</div>
+                                        <div>${data[0].competence.map((v, i) => v.selected ? v.competence : null).join('')}</div>
                                     </div>
                                 </div>
                                 <div class="d-flex py-2">
                                     <div class="icon mr-3">
-                                        <i class="fas fa-envelope"></i>
+                                        <i class="fas fa-user"></i>
                                     </div>
                                     <div class="desc">
                                         <div class="font-weight-bold">Siswa</div>
@@ -360,9 +380,9 @@
                 }
             })
         })
-        //ENDREAD 
+        /* End Read */
 
-        //UPDATE
+        /* Update */
         $('#classDetails').on('click', '#modalEdit', function(e) {
             $('#classDetails .modal-dialog .modal-content').html(` 
                     <div class="modal-header">
@@ -375,21 +395,29 @@
                     </div>
                     <form method="post" id="workerDetailsForm">
                         <div class="modal-body">
-                            <div class="form-group">
-                                <label for="wDetClassName">Nama Kelas</label>
-                                <input type="text" class="form-control" id="wDetClassName" placeholder="" value="${selectedClassData.class_name}">
-                            </div>
-                            <div class="form-group">
-                                <label for="wDetSteps">Kelas</label>
-                                <select class="form-control" name="" id="wDetSteps">
-                                    <option value="10" ${(selectedClassData.steps === 'X' ? 'selected="selected"' : '')}>X</option>
-                                    <option value="11" ${(selectedClassData.steps === 'XI' ? 'selected="selected"' : '')}>XI</option>
-                                    <option value="12" ${(selectedClassData.steps === 'XII' ? 'selected="selected"' : '')}>XII</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="wDetCompetence">Kompetensi Keahlian</label>
-                                <input type="text" class="form-control" id="wDetCompetence" placeholder="" value="${selectedClassData.competence}">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="wDetClassName">Nama Kelas</label>
+                                        <input type="text" class="form-control" id="wDetClassName" placeholder="" value="${selectedClassData.class_name}">
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="form-group">
+                                        <label for="wDetSteps">Kelas</label>
+                                        <select class="form-control" name="" id="wDetSteps">
+                                            ${selectedClassData.steps.map((step) => `<option value="${step.id}" ${(step.selected ? 'selected' : '')} >${step.steps}</option>`)}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-8">
+                                    <div class="form-group">
+                                        <label for="wDetCompetence">Kompetensi Keahlian</label>
+                                        <select class="form-control" name="" id="wDetCompetence">
+                                            ${selectedClassData.competence.map((competence) => `<option value="${competence.id}" ${(competence.selected ? 'selected' : '')} >${competence.competence}</option>`)}
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                             <div class="d-flex justify-content-end">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
@@ -419,7 +447,7 @@
                     'class_name': data.class_name[1]
                     , 'class_steps': data.class_steps[1]
                     , 'class_competence': data.class_competence[1]
-                , }
+                }
                 , beforeSend: () => {
                     loadingOverlay.css("display", "flex").fadeIn('fast')
                 }
@@ -451,9 +479,9 @@
                 }
             })
         })
-        //END UPDATE
+        /* Update */
 
-        //DELETE
+        /* Delete */
         $('#classDetails').on('click', '#modalDelete', function(e) {
             swal(SwalTemplate((selectedClassData.student_count > 0 ? true : false)))
                 .then((willDelete) => {
@@ -537,7 +565,7 @@
                 return toastErrorDataNull()
             })
         */
-        //END DELETE
+        /* End Delete */
 
         $('table').on('click', '.worker-details-trigger', function() {
             selectedClassId = $(this).data('id')
