@@ -30,7 +30,10 @@ class ClassController extends Controller
     public function index()
     {
         $userData = Main::getCurrectUserDetails();
-        return view('admin.class.index', compact('userData'));
+        $classData = new \stdClass();
+        $classData->steps = $this->getSteps()->toArray();
+        $classData->competence = $this->getCompetence()->toArray();
+        return view('admin.class.index', compact('userData', 'classData'));
     }
 
     public function trash()
