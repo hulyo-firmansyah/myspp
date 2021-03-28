@@ -59,8 +59,10 @@
                     </div>
                 </div>
                 <div class="card-footer">
-                    <button class="btn btn-danger btn-sm" id="studentsDelete"><i class="fa fa-trash"
-                            aria-hidden="true"></i> Delete</button>
+                    <button class="btn btn-danger btn-sm mr-2" id="studentsDelete"><i class="fa fa-trash"
+                            aria-hidden="true"></i> Delete Selected</button>
+                    <button class="btn btn-primary btn-sm" id="dataTableRefresh"><i class="fa fa-sync-alt"
+                            aria-hidden="true"></i> Refresh</button>
                 </div>
             </div>
         </div>
@@ -200,6 +202,22 @@
 <script>
     $(document).ready(function () {
 
+        /*
+            Variable Declaration
+        */
+        let selectedStudents = []
+            , selectedStudentsId = null
+            , selectedStudentsData
+        /* 
+            Element Variable
+        */
+        const dataTableRefreshButton = $('#dataTableRefresh')
+
+        /* End Variable Declaration */
+
+        /*
+            Plugin Initialization
+        */
         //Student new mask
         $('#sNewPhone').inputmask("(+62) 999-9999-9999")
         $('#sNewNominal').inputmask({
@@ -210,130 +228,15 @@
             , 'rightAlign': false
             ,
         })
+        /*
+            End Plugin Initialization
+        */
 
-        const studentsDataTable = $("#studentsList").DataTable({
-            ajax: {
-                "url": "{{route('a.students.api.get')}}"
-                , "dataSrc": "data"
-            }
-            , "columns": [{
-                title: "<input type='checkbox' id='studentsCheckbox'>"
-                , "data": null
-                , orderable: false
-                , "render": function (itemdata) {
-                    return `<input type='checkbox' class="students-checkbox" data-id=${itemdata.id}>`
-                }
-            }
-                , {
-                title: "Nama Siswa"
-                , "data": "name"
-            }
-                , {
-                title: "Username"
-                , "data": "username"
-            }
-                , {
-                title: "Kelas"
-                , "data": "class"
-            }
-                , {
-                title: "Dibuat"
-                , "data": "created_at"
-            }
-                , {
-                'data': null
-                , title: 'Action'
-                , wrap: true
-                , orderable: false
-                , "render": function (item) {
-                    return `<button type="button" class="btn btn-primary btn-sm student-details-trigger" data-id=${item.id} data-toggle="modal" data-target="#studentDetails"><i class="fa fa-info-circle" aria-hidden="true"></i> Details</button>`
-                }
-            }
-                ,]
-        })
+        /*
+            CRUD
+        */
 
-        let selectedStudents = []
-            , selectedStudentsId = null
-            , selectedStudentsData
-
-        $('table').on('click', '.student-details-trigger', function (e) {
-            selectedStudentsId = $(this).data('id')
-        })
-
-        $('#studentsDelete').click(function () {
-            selectedStudents = []
-            $('.students-checkbox:checked').each(function (key, value) {
-                selectedStudents.push(value.dataset.id)
-            })
-            if (selectedStudents.length > 0) {
-                swal({
-                    title: 'Apakah Anda yakin?'
-                    , text: 'Saat data dihapus Anda masih bisa melihatnya pada recycle bin.'
-                    , icon: 'warning'
-                    , buttons: true
-                    , dangerMode: true
-                    , showCancelButton: true
-                    , reverseButtons: true
-                    ,
-                })
-                    .then((willDelete) => {
-                        if (willDelete) {
-                            $.ajax({
-                                url: "{{route('a.students.api.delete')}}"
-                                , type: 'delete'
-                                , dataType: "JSON"
-                                , data: {
-                                    id: selectedStudents
-                                }
-                                , beforeSend: () => {
-                                    loadingOverlay.css("display", "flex").fadeIn('fast')
-                                }
-                                , success: function (res) {
-                                    loadingOverlay.fadeOut('fast')
-                                    let {
-                                        status
-                                    } = res
-                                    if (status) {
-                                        studentsDataTable.ajax.reload()
-                                        return iziToast.success({
-                                            title: 'Berhasil!'
-                                            , message: 'Data siswa berhasil dihapus.'
-                                            , position: 'topRight'
-                                        })
-                                    }
-                                },
-                                error: function (err, status, msg) {
-                                    loadingOverlay.fadeOut('fast')
-                                    return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
-                                }
-                            })
-                        }
-                        return false
-                    })
-                return
-            }
-
-            return iziToast.error({
-                title: 'Gagal'
-                , message: 'Tidak ada data yang dipilih!.'
-                , position: 'topRight'
-            })
-
-        })
-
-        $('#studentsCheckbox').change(function () {
-            const check = $(this).is(':checked')
-            if (check) {
-                $('.students-checkbox').prop('checked', true);
-            } else {
-                $('.students-checkbox').prop('checked', false);
-            }
-        })
-
-
-        //modal
-
-        //New
+        /* Create */
         $('#sNewForm').on('submit', function (e) {
             e.preventDefault()
 
@@ -413,8 +316,53 @@
                 }
             })
         })
+        /* End Create */
 
-        //Detail
+        /* Read */
+        const studentsDataTable = $("#studentsList").DataTable({
+            ajax: {
+                "url": "{{route('a.students.api.get')}}"
+                , "dataSrc": "data"
+            }
+            , "columns": [{
+                title: "<input type='checkbox' id='studentsCheckbox'>"
+                , "data": null
+                , orderable: false
+                , "render": function (itemdata) {
+                    return `<input type='checkbox' class="students-checkbox" data-id=${itemdata.id}>`
+                }
+            }
+                , {
+                title: "Nama Siswa"
+                , "data": "name"
+            }
+                , {
+                title: "Username"
+                , "data": "username"
+            }
+                , {
+                title: "Kelas"
+                , "data": null
+                , "render": item => {
+                    return item.class.map((v, i) => v.selected ? `${v.steps} ${v.competence}` : null).join('')
+                }
+            }
+                , {
+                title: "Dibuat"
+                , "data": "created_at"
+            }
+                , {
+                'data': null
+                , title: 'Action'
+                , wrap: true
+                , orderable: false
+                , "render": function (item) {
+                    return `<button type="button" class="btn btn-primary btn-sm student-details-trigger" data-id=${item.id} data-toggle="modal" data-target="#studentDetails"><i class="fa fa-info-circle" aria-hidden="true"></i> Details</button>`
+                }
+            }
+                ,]
+        })
+
         $('#studentDetails').on('show.bs.modal', function (e) {
             $.ajax({
                 url: `/admin/students/api/get-details/${selectedStudentsId}`
@@ -531,11 +479,11 @@
                                 </div>
                                 <div class="desc">
                                     <div class="font-weight-bold">Kelas</div>
-                                    <div>${selectedStudentsData.class} - ${selectedStudentsData.class_name}</div>
+                                    <div>${selectedStudentsData.class.map((value) => (value.selected ? `${value.steps} ${value.competence}` : '')).join('')}</div>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-6">
+                                <!--<div class="col-6">
                                     <div class="d-flex py-2">
                                         <div class="icon mr-3">
                                             <i class="fas fa-credit-card"></i>
@@ -556,7 +504,7 @@
                                             <div>${selectedStudentsData.spp_nominal}</div>
                                         </div>
                                     </div>
-                                </div>
+                                </div>-->
                             </div>
                             <a href="#">Lihat detail transaksi.</a>
                             <hr class="mt-2">
@@ -595,15 +543,13 @@
             })
         })
 
-        $('#studentDetails').on('hide.bs.modal', function (e) {
-            $('#studentDetails .modal-dialog .modal-content').slideUp('slow')
-            setTimeout(() => {
-                $('#studentDetails .modal-dialog .modal-content').html('')
-            }, 1000)
+        dataTableRefreshButton.on('click', function () {
+            return studentsDataTable.ajax.reload()
         })
+        /* End Read */
 
-        //action
-        //update
+        /* Update */
+        //New Form
         $('#studentDetails').on('click', '#modalEdit', function (e) {
             $('#studentDetails .modal-dialog .modal-content').html(`
                 <div class="modal-header">
@@ -664,10 +610,7 @@
                         <div class="form-group">
                             <label for="sDetClass">Kelas</label>
                             <select class="form-control" name="" id="sDetClass">
-                                @foreach($data as $cls)
-                                <option value="{{$cls['class_id']}}">{{ $cls['class']
-                                    }}</option>
-                                @endforeach
+                                ${selectedStudentsData.class.map((value) => `<option value="${value.id}" ${(value.selected ? 'selected' : '')} >${value.steps} ${value.competence}</option>`).join('')}
                             </select>
                         </div>
                         <div class="form-group">
@@ -758,8 +701,70 @@
                 }
             })
         })
+        /* End Update */
 
-        //delete
+        /* Delete */
+        $('#studentsDelete').click(function () {
+            selectedStudents = []
+            $('.students-checkbox:checked').each(function (key, value) {
+                selectedStudents.push(value.dataset.id)
+            })
+            if (selectedStudents.length > 0) {
+                swal({
+                    title: 'Apakah Anda yakin?'
+                    , text: 'Saat data dihapus Anda masih bisa melihatnya pada recycle bin.'
+                    , icon: 'warning'
+                    , buttons: true
+                    , dangerMode: true
+                    , showCancelButton: true
+                    , reverseButtons: true
+                    ,
+                })
+                    .then((willDelete) => {
+                        if (willDelete) {
+                            $.ajax({
+                                url: "{{route('a.students.api.delete')}}"
+                                , type: 'delete'
+                                , dataType: "JSON"
+                                , data: {
+                                    id: selectedStudents
+                                }
+                                , beforeSend: () => {
+                                    loadingOverlay.css("display", "flex").fadeIn('fast')
+                                }
+                                , success: function (res) {
+                                    loadingOverlay.fadeOut('fast')
+                                    let {
+                                        status
+                                    } = res
+                                    if (status) {
+                                        studentsDataTable.ajax.reload()
+                                        return iziToast.success({
+                                            title: 'Berhasil!'
+                                            , message: 'Data siswa berhasil dihapus.'
+                                            , position: 'topRight'
+                                        })
+                                    }
+                                }
+                                , error: function (err, status, msg) {
+                                    loadingOverlay.fadeOut('fast')
+                                    return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
+                                }
+                            })
+                        }
+                        return false
+                    })
+                return
+            }
+
+            return iziToast.error({
+                title: 'Gagal'
+                , message: 'Tidak ada data yang dipilih!.'
+                , position: 'topRight'
+            })
+
+        })
+
         $('#studentDetails').on('click', '#modalDelete', function (e) {
             swal({
                 title: 'Apakah Anda yakin?'
@@ -809,6 +814,27 @@
                     }
                     return false
                 })
+        })
+        /* End Delete */
+
+        $('table').on('click', '.student-details-trigger', function (e) {
+            selectedStudentsId = $(this).data('id')
+        })
+
+        $('#studentsCheckbox').change(function () {
+            const check = $(this).is(':checked')
+            if (check) {
+                $('.students-checkbox').prop('checked', true);
+            } else {
+                $('.students-checkbox').prop('checked', false);
+            }
+        })
+
+        $('#studentDetails').on('hide.bs.modal', function (e) {
+            $('#studentDetails .modal-dialog .modal-content').slideUp('slow')
+            setTimeout(() => {
+                $('#studentDetails .modal-dialog .modal-content').html('')
+            }, 1000)
         })
     })
 
