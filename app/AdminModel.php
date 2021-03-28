@@ -26,4 +26,9 @@ class AdminModel extends Model
         return $this->belongsTo(UserModel::class, 'data_of', 'id_user')
             ->where('role', 'admin');
     }
+
+    public function users()
+    {
+        return $this->belongsTo(UserModel::class, 'data_of', 'id_user');
+    }
 }
