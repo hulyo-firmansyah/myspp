@@ -102,6 +102,28 @@ class SppController extends Controller
         return $data;
     }
 
+    private function getSteps($select=null)
+    {
+        $steps = StepsModel::get();
+        $data = collect([]);
+        foreach(Main::genArray($steps) as $step){
+            if($step->id_tingkatan === $select){
+                $dat = [
+                    'id' => Crypt::encrypt($step->id_tingkatan),
+                    'steps' => Main::classStepsFilter($step->tingkatan),
+                    'selected' => true
+                ];
+            }else{
+                $dat = [
+                    'id' => Crypt::encrypt($step->id_tingkatan),
+                    'steps' => Main::classStepsFilter($step->tingkatan)
+                ];
+            }
+            $data->push($dat);
+        }
+        return $data;
+    }
+
 
     public function api_get(Request $request)
     {
