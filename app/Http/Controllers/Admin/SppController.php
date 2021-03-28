@@ -16,13 +16,31 @@ class SppController extends Controller
     private function term($request, $id=null)
     {
         $this->validate($request, [
-            'periode' => 'required|numeric|min:0|not_in:0',
-            'steps' => 'required|numeric|in:10,11,12',
-            'year' => 'required|numeric',
+            // 'periode' => 'required|numeric|min:0|not_in:0',
+            'steps' => [
+                'required',
+                function($attribute, $value, $fail){
+                    $steps = Crypt::decrypt($value);
+                    $steps = preg_replace('/[^0-9]/', '', $steps) === "" ? null : intval(preg_replace('/[^0-9]/', '', $steps));
+
+                    $check = StepsModel::where('id_tingkatan', $steps)->first();
+                    if(!$check) return $fail("The $attribute is not exist.");
+                }
+            ],
+            'year' => [
+                'required', 
+                function ($attribute, $value, $fail) {
+                    $year = preg_replace('/[^\d\/]/', '', $value);
+                    if(strlen($year) !== 9) return $fail('The '.$attribute.' must be 8 characters.');
+                }
+            ],
             'nominal' => 'required|numeric|min:0|not_in:0'
         ]);
         
-        $getSpp = SppModel::where('tahun', $request->year)->where('tingkat', $request->steps);
+        $steps = Crypt::decrypt($request->steps);
+        $steps = preg_replace('/[^0-9]/', '', $steps) === "" ? null : intval(preg_replace('/[^0-9]/', '', $steps));
+
+        $getSpp = SppModel::where('tahun', $request->year)->where('id_tingkatan', $steps);
         $id ? $getSpp = $getSpp->where('id_spp', '!=', $id)->first() : $getSpp = $getSpp->first();
         $sppNotValid = $getSpp ? true : false;
 
