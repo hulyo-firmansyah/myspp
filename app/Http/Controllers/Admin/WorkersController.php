@@ -13,6 +13,12 @@ use App\Helpers\Main;
 
 class WorkersController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['auth', 'checkrole:admin']);
+    }
+
+    
     //validation
     private function term($request, $id=null)
     {
