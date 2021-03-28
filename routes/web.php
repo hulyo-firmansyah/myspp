@@ -128,8 +128,8 @@ Route::prefix('/payment-history')->name('history.')->group(function(){
 Route::prefix('worker')->name('w.')->group(function(){
     Route::get('/', 'Worker\HomeController@index')->name('index');
 });
-Route::prefix('student')->group(function(){
-    Route::get('/dashboard', function(){
-        return 'student dashboard';
-    })->name('s.dashboard');
+
+Route::prefix('student')->name('s.')->group(function(){
+    Route::get('/', 'Student\HomeController@index')->name('index');
+    Route::get('/payment-history', 'Student\HomeController@paymentHistory')->name('history');
 });
