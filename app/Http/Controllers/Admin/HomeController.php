@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use \Auth;
+use App\Helpers\Main;
 
 class HomeController extends Controller
 {
