@@ -97,6 +97,52 @@ class ClassController extends Controller
         return $data;
     }
 
+    private function getCompetence($id = null)
+    {
+        //$id is for add selected status
+
+        $competence = CompetenceModel::get();
+        $data = collect([]);
+        foreach(Main::genArray($competence) as $cpt){
+            if($cpt->id_kompetensi_keahlian === $id){
+                $dat = [
+                    'id' => Crypt::encrypt($cpt->id_kompetensi_keahlian),
+                    'competence' => $cpt->kompetensi_keahlian,
+                    'selected' => true
+                ];
+            }else{
+                $dat = [
+                    'id' => Crypt::encrypt($cpt->id_kompetensi_keahlian),
+                    'competence' => $cpt->kompetensi_keahlian,
+                ];
+            }
+            $data->push($dat);
+        }
+        return $data;
+    }
+
+    private function getSteps($id=null)
+    {
+        $steps = StepsModel::get();
+        $data = collect([]);
+        foreach(Main::genArray($steps) as $step){
+            if($step->id_tingkatan === $id){
+                $dat = [
+                    'id' => Crypt::encrypt($step->id_tingkatan),
+                    'steps' => Main::classStepsFilter($step->tingkatan),
+                    'selected' => true
+                ];
+            }else{
+                $dat = [
+                    'id' => Crypt::encrypt($step->id_tingkatan),
+                    'steps' => Main::classStepsFilter($step->tingkatan)
+                ];
+            }
+            $data->push($dat);
+        }
+        return $data;
+    }
+
 
     public function api_get(Request $request)
     {
