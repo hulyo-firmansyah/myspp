@@ -53,6 +53,9 @@ class Main{
     
                 case "XII" :
                     return 12;
+
+                case "XIII" :
+                    return 13;
                 
                 default:
                     return 0;
@@ -67,6 +70,9 @@ class Main{
     
                 case 12 :
                     return 'XII';
+
+                case 13 :
+                    return 'XIII';
                 
                 default:
                     return '-';
@@ -100,6 +106,7 @@ class Main{
         }
 
         $data = collect([]);
+
         foreach(Main::genArray($student) as $std){
             if($std->classes !== null){
                 $data->push([
@@ -112,8 +119,9 @@ class Main{
                     'name' => $std->nama,
                     'phone' => $std->no_telp,
                     'address' => $std->alamat,
-                    'class_name' => $std->classes->nama_kelas,
-                    'class' => Self::classStepsFilter($std->classes->tingkatan)." ".$std->classes->kompetensi_keahlian,
+                    // 'class_name' => $std->classes->nama_kelas,
+                    // 'class' => Self::classStepsFilter($std->classes->step->tingkatan)." ".$std->classes->competence->kompetensi_keahlian,
+                    'class' => Self::generateClass($std->classes->id_kelas),
                     // 'spp_year' => $std->spps->tahun,
                     // 'spp_nominal' => $std->spps->nominal,
                     'created_at' => Carbon::parse($std->created_at)->format('d-m-Y'),
@@ -123,6 +131,23 @@ class Main{
             }
         }
         return $data;
+    }
+
+    public static function generateClass($idMatcher=null)
+    {
+        $classes = ClassModel::orderBy('id_tingkatan', 'ASC')->get();
+        $classData = [];
+        foreach(Self::genArray($classes) as $index => $cls){
+            if($idMatcher === $cls->id_kelas)  $selectedIndex = $index;
+            $classData[] = [
+                'id' => Crypt::encrypt($cls->id_kelas),
+                'class_name' => $cls->nama_kelas,
+                'steps' => Self::classStepsFilter($cls->step->tingkatan),
+                'competence' => $cls->competence->kompetensi_keahlian
+            ];
+        }
+        $classData[$selectedIndex]['selected'] = true;
+        return $classData;
     }
 
     public static function getMonth($index)
@@ -169,14 +194,21 @@ class Main{
             $data->role = $user->role;
             $data->name = $user->officer->nama_petugas;
             return $data;
-
         }
         $user = UserModel::with('student')->where('id_user', $auth->id_user)->first();
         $data = new \stdClass();
         $data->username = $user->username;
         $data->email = $user->email;
         $data->role = $user->role;
-        $data->name = $user->student->nama_petugas;
+        $data->name = $user->student->nama;
         return $data;
+    }
+
+    public function checkRole($role)
+    {
+        $this->load->library('session');
+        if(!$this->session->userdata('role') == $role){
+            abort(404);
+        }
     }
 }
