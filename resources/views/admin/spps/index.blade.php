@@ -12,8 +12,10 @@
 <div class="section-header">
     <h1>SPP</h1>
     <div class="section-header-button">
-        <button class="btn btn-primary" data-target="#sppAdd" data-toggle="modal"><i class="fa fa-plus" aria-hidden="true"></i> Tambah</button>
-        {{-- <a href="{{route('a.spps.trash')}}" class="btn btn-danger ml-2" title="Recycle Bin"><i class="fa fa-trash" aria-hidden="true"></i></a> --}}
+        <button class="btn btn-primary" data-target="#sppAdd" data-toggle="modal"><i class="fa fa-plus"
+                aria-hidden="true"></i> Tambah</button>
+        {{-- <a href="{{route('a.spps.trash')}}" class="btn btn-danger ml-2" title="Recycle Bin"><i class="fa fa-trash"
+                aria-hidden="true"></i></a> --}}
     </div>
     <div class="section-header-breadcrumb">
         <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
@@ -72,20 +74,21 @@
             <div class="modal-body">
                 <form method="post" action="/admin/spp/add" id="sppNewForm">
                     <div class="row">
-                        <div class="col-4">
+                        {{-- <div class="col-4">
                             <div class="form-group">
                                 <label for="sppNewPeriode">Periode</label>
                                 <input type="number" class="form-control" id="sppNewPeriode" placeholder="" value="">
                                 <small>*Periode pembayaran per tahun.</small>
                             </div>
-                        </div>
-                        <div class="col-8">
+                        </div> --}}
+                        <div class="col-12">
                             <div class="form-group">
                                 <label for="sppNewSteps">Tingkat</label>
                                 <select name="" id="sppNewSteps" class="form-control">
-                                    <option value="10">X</option>
-                                    <option value="11">XI</option>
-                                    <option value="12">XII</option>
+                                    @foreach($stepData as $i => $std)
+                                    <option value="{{$std['id']}}" {{$i==0 ? 'selected' : '' }}>{{$std['steps']}}
+                                    </option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -93,7 +96,7 @@
                     <div class="row">
                         <div class="col-6">
                             <div class="form-group">
-                                <label for="sppNewYear">Tahun</label>
+                                <label for="sppNewYear">Tahun Ajaran</label>
                                 <input type="text" class="form-control" id="sppNewYear" placeholder="" value="">
                             </div>
                         </div>
@@ -108,7 +111,8 @@
 
                     <div class="d-flex justify-content-end">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary ml-2"><i class="fa fa-paper-plane" aria-hidden="true"></i> Kirim</button>
+                        <button type="submit" class="btn btn-primary ml-2"><i class="fa fa-paper-plane"
+                                aria-hidden="true"></i> Kirim</button>
                     </div>
                 </form>
             </div>
@@ -118,13 +122,13 @@
 
 <div class="modal fade" id="sppDetails" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content" style="display: none">
         </div>
     </div>
 </div>
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
 
         const toastSuccessDelete = () => {
             return iziToast.success({
@@ -155,51 +159,18 @@
             })
         }
 
-        const sppsDataTable = $("#sppsList").DataTable({
-            ajax: {
-                "url": "{{route('a.spps.api.get')}}"
-                , "dataSrc": "data"
-            }
-            , "columns": [{
-                    title: "#"
-                    , "data": null
-                    , orderable: false
-                    , "render": function(itemdata) {
-                        return `#`
-                    }
-                }
-                , {
-                    title: "Tahun"
-                    , "data": "year"
-                }
-                , {
-                    title: "Nominal"
-                    , "data": "nominal_formatted"
-                }
-                , {
-                    title: "Tingkat"
-                    , "data": "step"
-                }
-                , {
-                    title: "Periode"
-                    , "data": "periode"
-                }
-                , {
-                    'data': null
-                    , title: 'Action'
-                    , wrap: true
-                    , orderable: false
-                    , "render": function(item) {
-                        return `<button type="button" class="btn btn-primary btn-sm spp-details-trigger" data-id=${item.id} data-toggle="modal" data-target="#sppDetails"><i class="fa fa-info-circle" aria-hidden="true"></i> Details</button>`
-                    }
-                }
-            , ]
-        , })
+        /*
+            Variable declaration
+        */
 
         let selectedSpps = []
             , selectedSppsId = null
             , selectedSppsData
 
+
+        /* Initialization */
+
+        /* Inputmask nominal(On add data) */
         $('#sppNewNominal').inputmask({
             'alias': 'decimal'
             , 'groupSeparator': ','
@@ -207,18 +178,28 @@
             , 'prefix': 'Rp. '
             , 'rightAlign': false
         })
+        $('#sppNewYear').inputmask('9999/9999')
 
-        $('#sppAdd').on('submit', '#sppNewForm', function(e) {
+        /* End Initialization */
+
+        /*
+            CRUD
+        */
+
+        /*Create*/
+
+        /* Submit new SPP */
+        $('#sppAdd').on('submit', '#sppNewForm', function (e) {
             e.preventDefault()
 
             const data = {
-                'periode': ['#sppNewPeriode', e.target[0].value]
-                , 'steps': ['#sppNewSteps', e.target[1].value]
-                , 'year': ['#sppNewYear', e.target[2].value]
-                , 'nominal': ['#sppNewNominal', e.target[3].inputmask.unmaskedvalue()]
+                //'periode': ['#sppNewPeriode', e.target[0].value]
+                'steps': ['#sppNewSteps', e.target[0].value]
+                , 'year': ['#sppNewYear', e.target[1].value]
+                , 'nominal': ['#sppNewNominal', e.target[2].inputmask.unmaskedvalue()]
             }
 
-            $.each(data, function(i, v) {
+            $.each(data, function (i, v) {
                 $(v[0]).removeClass('is-invalid').next().remove()
             })
 
@@ -226,15 +207,15 @@
                 url: `{{route('a.spps.api.store')}}`
                 , type: 'post'
                 , data: {
-                    'periode': data.periode[1]
-                    , 'steps': data.steps[1]
+                    //'periode': data.periode[1]
+                    'steps': data.steps[1]
                     , 'year': data.year[1]
                     , 'nominal': data.nominal[1]
                 }
                 , beforeSend: () => {
                     loadingOverlay.css("display", "flex").fadeIn('fast')
                 }
-                , success: function(res) {
+                , success: function (res) {
                     const {
                         status
                         , length
@@ -243,16 +224,17 @@
                         loadingOverlay.fadeOut('fast')
                         $('#sppAdd').modal('hide')
                         sppsDataTable.ajax.reload()
-                        $.each(data, function(i, v) {
+                        $.each(data, function (i, v) {
                             $(v[0]).val('')
                         })
                         return toastSuccessAdd()
                     }
                 }
-                , error: function(err, status, msg) {
+                , error: function (err, status, msg) {
                     loadingOverlay.fadeOut('fast')
                     if (err.status === 422) {
-                        $.each(err.responseJSON.errors, function(i, v) {
+                        $.each(err.responseJSON.errors, function (i, v) {
+                            console.log(i, v)
                             $(data[i][0]).addClass('is-invalid')
                             $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
                         })
@@ -263,21 +245,63 @@
                 }
             })
         })
+        /*End Create*/
 
-        $('table').on('click', '.spp-details-trigger', function(e) {
-            selectedSppsId = $(this).data('id')
+        /*Read*/
+        const sppsDataTable = $("#sppsList").DataTable({
+            ajax: {
+                "url": "{{route('a.spps.api.get')}}"
+                , "dataSrc": "data"
+            }
+            , "columns": [{
+                title: "#"
+                , "data": null
+                , orderable: false
+                , "render": function (itemdata) {
+                    return `#`
+                }
+            }
+                , {
+                title: "Tahun Ajaran"
+                , "data": "year"
+            }
+                , {
+                title: "Nominal"
+                , "data": "nominal_formatted"
+            }
+                , {
+                title: "Kelas"
+                , "data": null
+                , "render": item => {
+                    return item.steps.map((v, i) => v.selected ? v.steps : null).join('')
+                }
+            }
+                //     , {
+                //     title: "Periode"
+                //     , "data": "periode"
+                // }
+                , {
+                'data': null
+                , title: 'Action'
+                , wrap: true
+                , orderable: false
+                , "render": function (item) {
+                    return `<button type="button" class="btn btn-primary btn-sm spp-details-trigger" data-id=${item.id} data-toggle="modal" data-target="#sppDetails"><i class="fa fa-info-circle" aria-hidden="true"></i> Details</button>`
+                }
+            }
+                ,]
+            ,
         })
 
-
-        //modal
-        //Detail
-        $('#sppDetails').on('show.bs.modal', function(e) {
+        /* Modal Details */
+        $('#sppDetails').on('show.bs.modal', function (e) {
+            const sppDetailsModalContent = $('#sppDetails .modal-dialog .modal-content')
             $.ajax({
                 url: `/admin/spps/api/get-details/${selectedSppsId}`
                 , beforeSend: () => {
                     loadingOverlay.css("display", "flex").fadeIn('fast')
                 }
-                , success: function(res) {
+                , success: function (res) {
                     loadingOverlay.fadeOut('fast')
                     let {
                         data
@@ -285,7 +309,7 @@
                         , length
                     } = JSON.parse(res)
                     selectedSppsData = data[0]
-                    $('#sppDetails .modal-dialog .modal-content').html(`
+                    sppDetailsModalContent.html(`
                         <div class="modal-header">
                             <h5>Detail SPP</h5>
                             <div class="d-flex justify-content-center align-items-center">
@@ -319,8 +343,8 @@
                                             <i class="fas fa-angle-double-up"></i>
                                         </div>
                                         <div class="desc">
-                                            <div class="font-weight-bold">Tingkat</div>
-                                            <div>${selectedSppsData.step}</div>
+                                            <div class="font-weight-bold">Kelas</div>
+                                            <div>${selectedSppsData.steps.map((v, i) => v.selected ? v.steps : null).join('')}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -382,8 +406,9 @@
                             </div>
                         </div>
                     `)
+                    sppDetailsModalContent.slideDown('slow')
                 }
-                , error: function(err, status, msg) {
+                , error: function (err, status, msg) {
                     loadingOverlay.fadeOut('fast')
                     $('#sppDetails').modal('hide')
                     return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
@@ -391,13 +416,10 @@
             })
         })
 
-        $('#sppDetails').on('hide.bs.modal', function(e) {
-            $('#sppDetails .modal-dialog .modal-content').html('')
-        })
+        /*End Read*/
 
-        //action
-        //update
-        $('#sppDetails').on('click', '#modalEdit', function(e) {
+        /*Update*/
+        $('#sppDetails').on('click', '#modalEdit', function (e) {
             $('#sppDetails .modal-dialog .modal-content').html(` 
                 <div class="modal-header">
                     <h5>Tambah Pembayaran SPP</h5>
@@ -405,20 +427,11 @@
                 <div class="modal-body">
                     <form method="post" id="sppDetailsForm">
                         <div class="row">
-                            <div class="col-4">
-                                <div class="form-group">
-                                    <label for="sppDetPeriode">Periode</label>
-                                    <input type="number" class="form-control" id="sppDetPeriode" placeholder="" value="${selectedSppsData.periode}">
-                                    <small>*Periode pembayaran per tahun.</small>
-                                </div>
-                            </div>
-                            <div class="col-8">
+                            <div class="col-12">
                                 <div class="form-group">
                                     <label for="sppDetSteps">Tingkat</label>
                                     <select name="" id="sppDetSteps" class="form-control">
-                                        <option value="10" ${selectedSppsData.step == 'X' ? 'selected' : null}>X</option>
-                                        <option value="11" ${selectedSppsData.step == 'XI' ? 'selected' : null}>XI</option>
-                                        <option value="12" ${selectedSppsData.step == 'XII' ? 'selected' : null}>XII</option>
+                                        ${selectedSppsData.steps.map((step) => `<option value="${step.id}" ${(step.selected ? 'selected' : '')} >${step.steps}</option>`)}
                                     </select>
                                 </div>
                             </div>
@@ -433,7 +446,7 @@
                             <div class="col-6">
                                 <div class="form-group">
                                     <label for="sppDetNominal">Nominal</label>
-                                    <input type="text" class="form-control" id="sppDetNominal" placeholder="" value="${selectedSppsData.nominal_per_steps}">
+                                    <input type="text" class="form-control" id="sppDetNominal" placeholder="" value="${selectedSppsData.nominal}">
                                     <small>Nominal akan dikalikan sejumlah periode.</small>
                                 </div>
                             </div>
@@ -448,6 +461,7 @@
                 </div>
             `)
 
+            $('#sppDetYear').inputmask('9999/9999')
             $('#sppDetNominal').inputmask({
                 'alias': 'decimal'
                 , 'groupSeparator': ','
@@ -456,17 +470,18 @@
                 , 'rightAlign': false
             })
         })
-        $('#sppDetails').on('submit', '#sppDetailsForm', function(e) {
+
+        $('#sppDetails').on('submit', '#sppDetailsForm', function (e) {
             e.preventDefault()
 
             const data = {
-                'periode': ['#sppDetPeriode', e.target[0].value]
-                , 'steps': ['#sppDetSteps', e.target[1].value]
-                , 'year': ['#sppDetYear', e.target[2].value]
-                , 'nominal': ['#sppDetNominal', e.target[3].inputmask.unmaskedvalue()]
+                // 'periode': ['#sppDetPeriode', e.target[0].value]
+                'steps': ['#sppDetSteps', e.target[0].value]
+                , 'year': ['#sppDetYear', e.target[1].value]
+                , 'nominal': ['#sppDetNominal', e.target[2].inputmask.unmaskedvalue()]
             }
 
-            $.each(data, function(i, v) {
+            $.each(data, function (i, v) {
                 $(v[0]).removeClass('is-invalid').next().remove()
             })
 
@@ -474,15 +489,15 @@
                 url: `/admin/spps/api/update/${selectedSppsId}`
                 , type: 'PUT'
                 , data: {
-                    'periode': data.periode[1]
-                    , 'steps': data.steps[1]
+                    // 'periode': data.periode[1]
+                    'steps': data.steps[1]
                     , 'year': data.year[1]
                     , 'nominal': data.nominal[1]
                 }
                 , beforeSend: () => {
                     loadingOverlay.css("display", "flex").fadeIn('fast')
                 }
-                , success: function(res) {
+                , success: function (res) {
                     loadingOverlay.fadeOut('fast')
                     const {
                         data
@@ -495,9 +510,10 @@
                         return toastSuccessEdit()
                     }
                 }
-                , error: function(err, status, msg) {
+                , error: function (err, status, msg) {
+                    loadingOverlay.fadeOut('fast')
                     if (err.status === 422) {
-                        $.each(err.responseJSON.errors, function(i, v) {
+                        $.each(err.responseJSON.errors, function (i, v) {
                             $(data[i][0]).addClass('is-invalid')
                             $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
                         })
@@ -508,18 +524,20 @@
                 }
             })
         })
+        /*End Update*/
 
-        //delete
-        $('#sppDetails').on('click', '#modalDelete', function(e) {
+        /*Delete*/
+        $('#sppDetails').on('click', '#modalDelete', function (e) {
             swal({
-                    title: 'Apakah Anda yakin?'
-                    , text: 'Terdapat Transaksi pada SPP ini. Jika Anda menghapus data spp maka data transaksi juga akan terhapus dan tidak akan bisa dikembalikan.'
-                    , icon: 'warning'
-                    , buttons: true
-                    , dangerMode: true
-                    , showCancelButton: true
-                    , reverseButtons: true
-                , })
+                title: 'Apakah Anda yakin?'
+                , text: 'Terdapat Transaksi pada SPP ini. Jika Anda menghapus data spp maka data transaksi juga akan terhapus dan tidak akan bisa dikembalikan.'
+                , icon: 'warning'
+                , buttons: true
+                , dangerMode: true
+                , showCancelButton: true
+                , reverseButtons: true
+                ,
+            })
                 .then((willDelete) => {
                     if (willDelete) {
                         $.ajax({
@@ -532,7 +550,7 @@
                             , beforeSend: () => {
                                 loadingOverlay.css("display", "flex").fadeIn('fast')
                             }
-                            , success: function(result) {
+                            , success: function (result) {
                                 loadingOverlay.fadeOut('fast')
                                 let {
                                     data
@@ -545,7 +563,7 @@
                                     return toastSuccessDelete()
                                 }
                             }
-                            , error: function(err, status, msg) {
+                            , error: function (err, status, msg) {
                                 loadingOverlay.fadeOut('fast')
                                 $('#sppDetails').modal('hide')
                                 return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
@@ -554,6 +572,19 @@
                     }
                     return false
                 })
+        })
+        /*End Delete*/
+
+        $('table').on('click', '.spp-details-trigger', function (e) {
+            selectedSppsId = $(this).data('id')
+        })
+
+        $('#sppDetails').on('hide.bs.modal', function (e) {
+            const sppDetailsModalContent = $('#sppDetails .modal-dialog .modal-content')
+            sppDetailsModalContent.slideUp('slow')
+            setTimeout(() => {
+                sppDetailsModalContent.html('')
+            }, 1000)
         })
     })
 
