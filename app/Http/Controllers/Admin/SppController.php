@@ -7,11 +7,20 @@ use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use \Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Validator;
+
 use App\Helpers\Main;
 use App\SppModel;
+use App\StepsModel;
 
 class SppController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['auth', 'checkrole:admin']);
+    }
+
+    
     //Validation
     private function term($request, $id=null)
     {
@@ -61,7 +70,8 @@ class SppController extends Controller
     public function index()
     {
         $userData = Main::getCurrectUserDetails();
-        return view('admin.spps.index', compact('userData'));
+        $stepData = $this->getSteps();
+        return view('admin.spps.index', compact('userData', 'stepData'));
     }
 
     public function trash()
@@ -77,9 +87,9 @@ class SppController extends Controller
         $spps = $trash ? $spps = SppModel::onlyTrashed() : $spps = new SppModel();
 
         if($id != null){
-            $spps = $spps->where('id_spp', $id)->orderBy('tahun', 'ASC')->orderBy('tingkat', 'ASC')->get();
+            $spps = $spps->where('id_spp', $id)->orderBy('tahun', 'ASC')->orderBy('id_tingkatan', 'ASC')->get();
         }else{
-            $spps = $spps->orderBy('tahun', 'ASC')->orderBy('tingkat', 'ASC')->get();
+            $spps = $spps->orderBy('tahun', 'ASC')->orderBy('id_tingkatan', 'ASC')->get();
         }
         
         $data = collect([]);
@@ -87,12 +97,12 @@ class SppController extends Controller
             $data->push([
                 'id' => Crypt::encrypt($spp->id_spp),
                 'year' => $spp->tahun,
-                'nominal_per_steps' => $spp->nominal / $spp->periode,
-                'nominal_per_steps_formatted' => Main::rupiahCurrency($spp->nominal / $spp->periode),
+                // 'nominal_per_steps' => $spp->nominal / $spp->periode, ntar dibagi nol aja
+                // 'nominal_per_steps_formatted' => Main::rupiahCurrency($spp->nominal / $spp->periode), // ino juga
                 'nominal' => $spp->nominal,
                 'nominal_formatted' => Main::rupiahCurrency($spp->nominal),
-                'periode' => $spp->periode,
-                'step' => Main::classStepsFilter($spp->tingkat),
+                // 'periode' => $spp->periode,
+                'steps' => $this->getSteps($spp->step->id_tingkatan),
                 'created_at' => Carbon::parse($spp->created_at)->format('d-m-Y'),
                 'updated_at' => Carbon::parse($spp->updated_at)->format('d-m-Y'),
                 'deleted_at' => $spp->deleted_at ? Carbon::parse($spp->deleted_at)->format('d-m-Y') : null,
@@ -138,13 +148,15 @@ class SppController extends Controller
         if(!$request->ajax()) abort(404);
 
         $this->term($request);
+        
+        $steps = Crypt::decrypt($request->steps);
+        $steps = preg_replace('/[^0-9]/', '', $steps) === "" ? null : intval(preg_replace('/[^0-9]/', '', $steps));
 
-        $spp = SppModel::create([
-            'tahun' => $request->year,
-            'nominal' => (intval($request->nominal) * intval($request->periode)),
-            'periode' => $request->periode,
-            'tingkat' => $request->steps
-        ]);
+        $spp = new SppModel();
+        $spp->tahun = $request->year;
+        $spp->nominal = intval($request->nominal);
+        $spp->id_tingkatan = $steps;
+        $spp->save();
 
         return Main::generateAPI($spp);
     }
@@ -186,9 +198,11 @@ class SppController extends Controller
         
         $spp = SppModel::findOrFail($id);
         $spp->tahun = $request->year;
-        $spp->nominal = (intval($request->nominal) * intval($request->periode));
-        $spp->periode = $request->periode;
-        $spp->tingkat = $request->steps;
+        $spp->nominal = intval($request->nominal);
+        // $spp->periode = $request->periode;
+        $steps = Crypt::decrypt($request->steps);
+        $steps = preg_replace('/[^0-9]/', '', $steps) === "" ? null : intval(preg_replace('/[^0-9]/', '', $steps));
+        $spp->id_tingkatan = $steps;
         $spp->save();
 
         return Main::generateAPI($spp);
