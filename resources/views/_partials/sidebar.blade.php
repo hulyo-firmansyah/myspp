@@ -12,9 +12,18 @@ $route = explode('/', $routeList);
         </div>
         <ul class="sidebar-menu">
             <li class="menu-header">Dashboard</li>
-            <li class="dropdown {{Request::is('admin') ? 'active' : null}}">
-                <a href="#" class="nav-link"><i class="fas fa-fire"></i><span>Dashboard</span></a>
+            <li class="dropdown {{ (in_array(Config::get('site_vars.role.FIRST'), $route) && count($route) < 2 ) || in_array(Config::get('site_vars.role.SECOND'), $route) || (in_array(Config::get('site_vars.role.THIRD'), $route) && count($route) < 2) ? 'active' : null}}">
+
+                <!-- Variable Role Is On Partials/Master -->
+                @if($role === Config::get('site_vars.role.FIRST'))
+                <a href="{{route('a.index')}}" class="nav-link"><i class="fas fa-fire"></i><span>Dashboard</span></a>
+                @elseif($role === Config::get('site_vars.role.SECOND'))
+                <a href="{{route('w.index')}}" class="nav-link"><i class="fas fa-fire"></i><span>Dashboard</span></a>
+                @else
+                <a href="{{route('s.index')}}" class="nav-link"><i class="fas fa-fire"></i><span>Dashboard</span></a>
+                @endif
             </li>
+            @if($role === Config::get('site_vars.role.FIRST'))
             <li class="menu-header">Manajemen Data</li>
             <li class="dropdown {{ in_array('workers', $route) || in_array('students', $route) || in_array('class', $route) || in_array('spps', $route) ? 'active' : null}}">
                 <a href="#" class="nav-link has-dropdown"><i class="fas fa-database"></i><span>Manajemen Data</span></a>
@@ -25,13 +34,25 @@ $route = explode('/', $routeList);
                     <li class="{{ in_array('spps', $route) ? 'active' : null}}"><a href="{{route('a.spps.index')}}" class="nav-link"><i class="fas fa-clipboard-list"></i><span>SPP</span></a></li>
                 </ul>
             </li>
+            @endif
+            @if($role !== Config::get('site_vars.role.THIRD'))
             <li class="menu-header">Transaksi</li>
             <li class="dropdown {{ in_array('transaction', $route) ? 'active' : null}}">
-                <a href="{{ route('transaction.index') }}" class="nav-link"><i class="fas fa-book"></i><span>Transaksi</span></a>
+                <a href="{{ route('transaction.index') }}" class="nav-link"><i class="fas fa-credit-card"></i><span>Transaksi</span></a>
             </li>
             <li class="menu-header">Laporan</li>
-            <li class="dropdown">
-                <a href="#" class="nav-link"><i class="fas fa-chart-bar"></i><span>Laporan</span></a>
+            <li class="dropdown {{ in_array('payment-history', $route) ? 'active' : null}}">
+                <a href="{{ route('history.index') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Histori Pembayaran</span></a>
+            </li>
+            @else
+            <li class="menu-header">Laporan</li>
+            <li class="dropdown {{ in_array('payment-history', $route) ? 'active' : null}}">
+                <a href="{{ route('s.history') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Histori Pembayaran</span></a>
+            </li>
+            @endif
+            <li class="menu-header">Setting</li>
+            <li class="dropdown {{ in_array('settings', $route) ? 'active' : null}}">
+                <a href="{{ route('history.index') }}" class="nav-link"><i class="fas fa-wrench"></i><span>Pengaturan Umum</span></a>
             </li>
     </aside>
 </div>
