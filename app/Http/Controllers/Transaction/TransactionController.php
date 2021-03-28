@@ -17,10 +17,12 @@ use App\AdminModel;
 
 class TransactionController extends Controller
 {
+
     public function __construct()
     {
-        $this->middleware(['auth', 'checkrole:admin,worker'])->except('api_getTransaction');
+        $this->middleware(['auth', 'checkrole:admin,worker']);
     }
+
     
     public function index()
     {   
@@ -53,10 +55,11 @@ class TransactionController extends Controller
                 $payment->jumlah_bayar = $t_crt->jumlah_bayar;
                 $payment->save();
             }
+            $studentName = $transactionCart->first()->student->nama;
             $transactionCart->delete();
-            return redirect(route('transaction.index')); //with success
+            return redirect()->route('transaction.index')->with('success', ['msg' => 'Pembayaran Berhasil!', 'student_name' => $studentName, 'date' => Carbon::now()->format('d-m-Y')]);
         }
-        return redirect(route('transaction.index')); //with false or error
+        return redirect()->route('transaction.index')->with('error', 'Pembayaran gagal!');
     }
 
 
@@ -74,9 +77,10 @@ class TransactionController extends Controller
         foreach(Main::genArray($transactionData) as $trd){
             $transactionCart->push([
                 'trs_id' => Crypt::encrypt($trd->id_keranjang),
+                'trs_officer_name' => $trd->officer->nama_petugas,
                 'trs_spp_year' => $trd->spp->tahun,
                 'trs_spp_periode' => $trd->spp->periode,
-                'trs_spp_steps' => Main::classStepsFilter($trd->spp->tingkat),
+                'trs_spp_steps' => Main::classStepsFilter($trd->spp->step->tingkatan),
                 'trs_nominal' => $trd->jumlah_bayar,
                 'trs_nominal_formatted' => Main::rupiahCurrency($trd->jumlah_bayar),
                 'trs_month' => Main::getMonth($trd->bulan_dibayar),
@@ -105,18 +109,22 @@ class TransactionController extends Controller
         // $studentId = 14;//Vera
         $studentData = StudentModel::findOrFail($studentId);
         $paymentType = SppModel::get();
-
         $paymentTemp = collect([]);
         foreach(Main::genArray($paymentType) as $payment){
+            // $getPayment = PaymentModel::where('id_spp', $payment->id_spp)
+            //     ->where('id_petugas', AdminModel::where('data_of', Auth::user()->id_user)->first()->id_petugas)
+            //     ->where('id_siswa', $studentId);
+            
             $paymentTemp->push([
                 'id' => Crypt::encrypt($payment->id_spp),
                 'year' => $payment->tahun,
-                'nominal_per_periode' => $payment->nominal / $payment->periode,
-                'nominal_per_periode_formatted' => Main::rupiahCurrency($payment->nominal / $payment->periode),
+                'nominal_per_periode' => $payment->nominal / 12,
+                'nominal_per_periode_formatted' => Main::rupiahCurrency($payment->nominal / 12),
                 'nominal' => $payment->nominal,
                 'nominal_formatted' => Main::rupiahCurrency($payment->nominal),
-                'periode' => $payment->periode,
-                'steps' => Main::classStepsFilter($payment->tingkat)
+                'periode' => 12,
+                'steps' => Main::classStepsFilter($payment->step->tingkatan),
+                'payment_info_per_periode'
             ]);
             //SPP XII RPL 1 | 2020
         }
@@ -125,7 +133,7 @@ class TransactionController extends Controller
             'payment_date' => Carbon::now()->format('Y-m-d'),
             'student_nisn' => $studentData->nisn,
             'student_name' => $studentData->nama,
-            'student_class' => Main::classStepsFilter($studentData->classes->tingkatan)." ".$studentData->classes->kompetensi_keahlian,
+            'student_class' => Main::classStepsFilter($studentData->classes->step->tingkatan)." ".$studentData->classes->competence->kompetensi_keahlian,
             'payment_type' => $paymentTemp,
             'transaction_cart' => $this->getTransactionCart($studentId),
             'enc' => [
@@ -134,8 +142,6 @@ class TransactionController extends Controller
             ],
         ]);
         
-        // dd($request->session()->has('t_data'));
-        // if($request->session()->has('t_data')) $request->session()->forget('t_data');
         $request->session()->put('t_data', [
             't_code' => $data['enc']['t_code'],
             's_id' => $data['enc']['s_id']
@@ -155,6 +161,7 @@ class TransactionController extends Controller
             'nominal' => 'required|numeric',
             'month' => 'required|numeric|min:1|max:12'
         ]);
+
         $s_id = Crypt::decrypt($request->s_id);
         $s_id = preg_replace('/[^0-9]/', '', $s_id) === "" ? null : intval(preg_replace('/[^0-9]/', '', $s_id));
         $spp_id = Crypt::decrypt($request->spp_id);
@@ -163,9 +170,12 @@ class TransactionController extends Controller
         $transactionCheck = TransactionCartModel::where('id_spp', $spp_id)->where('id_siswa', $s_id)->where('bulan_dibayar', $request->month)->first();
         if($transactionCheck) return Main::generateAPI([]);
 
+        $officerId = AdminModel::where('data_of', Auth::user()->id_user)->first()->id_petugas;
+
         $transactionCart = new TransactionCartModel();
         $transactionCart->id_spp = $spp_id;
         $transactionCart->id_siswa = $s_id;
+        $transactionCart->id_petugas = $officerId;
         $transactionCart->jumlah_bayar = $request->nominal;
         $transactionCart->bulan_dibayar = $request->month;
         $transactionCart->save();
