@@ -15,10 +15,16 @@ class CreateSppTable extends Migration
     {
         Schema::create('spp', function (Blueprint $table) {
             $table->increments('id_spp', 11);
-            $table->integer('tahun')->length(11);
+            $table->string('tahun', 9);
             $table->integer('nominal')->length(11);
-            $table->integer('periode')->length(11);
-            $table->enum('tingkat', [10,11,12]);
+            // $table->integer('periode')->length(11); hapus dulu sementara keknya ga bakal kepake
+            
+            $table->integer('id_tingkatan')->length(11)->unsigned();
+            $table->foreign('id_tingkatan')
+                ->onDelete('restrict')
+                ->onUpdate('restrict')
+                ->references('id_tingkatan')
+                ->on('tingkatan');
             $table->timestamps();
             $table->softDeletes();
         });
