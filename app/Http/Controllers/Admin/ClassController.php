@@ -5,13 +5,23 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
-use App\ClassModel;
-use App\StudentModel;
-use App\Helpers\Main;
+use \Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Crypt;
+use App\Helpers\Main;
+
+use App\ClassModel;
+use App\StepsModel;
+use App\StudentModel;
+use App\CompetenceModel;
 
 class ClassController extends Controller
 {   
+    public function __construct()
+    {
+        $this->middleware(['auth', 'checkrole:admin']);
+    }
+
+
     //Validation
     private function term($request, $id=null)
     {
@@ -77,38 +87,11 @@ class ClassController extends Controller
         $data = collect([]);
         foreach(Main::genArray($class) as $cls){
             $students = collect([]);
-            // foreach(Main::genArray($cls->students) as $std){
-            //     $students->push([
-            //         'id' => $std->id_siswa,
-            //         'nisn' => $std->nisn,
-            //         'nis' => $std->nis,
-            //         'name' => $std->nama,
-            //         'address' => $std->alamat,
-            //         'phone' => $std->no_telp,
-            //         'users' => collect([
-            //             'username' => $std->users->username,
-            //             'email' => $std->users->email,
-            //             'role' => $std->users->role,
-            //             'created_at' => Carbon::parse($std->users->created_at)->format('d-m-Y'),
-            //             'updated_at' => Carbon::parse($std->users->updated_at)->format('d-m-Y'),
-            //             'deleted_at' => $std->users->deleted_at ? Carbon::parse($std->users->deleted_at)->format('d-m-Y') : null
-            //         ]),
-            //         'created_at' => Carbon::parse($std->created_at)->format('d-m-Y'),
-            //         'updated_at' => Carbon::parse($std->updated_at)->format('d-m-Y'),
-            //         'deleted_at' => $std->deleted_at ? Carbon::parse($std->deleted_at)->format('d-m-Y') : null
-            //     ]);
-            // }
-            $stepsGrade = null;
-            if($cls->tingkatan === 10) $stepsGrade = 'X';
-            else if($cls->tingkatan === 11) $stepsGrade = 'XI';
-            else if($cls->tingkatan === 12) $stepsGrade = 'XII';
-            else $stepsGrade = '-';
-
             $data->push([
                 'id' => Crypt::encrypt($cls->id_kelas),
                 'class_name' => $cls->nama_kelas,
-                'steps' => $stepsGrade,
-                'competence' => $cls->kompetensi_keahlian,
+                'steps' => $this->getSteps($cls->step->id_tingkatan),
+                'competence' => $this->getCompetence($cls->competence->id_kompetensi_keahlian),
                 'student_count' => $cls->students->count(),
                 'students_detail_url' => route('a.students.byclass', ['class' => Crypt::encrypt($cls->id_kelas)]),
                 'created_at' => Carbon::parse($cls->created_at)->format('d-m-Y'),
@@ -177,13 +160,13 @@ class ClassController extends Controller
     public function api_store(Request $request)
     {
         if(!$request->ajax()) abort(404);
-        
+
         $this->term($request);
         
         $class = new CLassModel;
         $class->nama_kelas = $request->class_name;
-        $class->tingkatan = $request->class_steps;
-        $class->kompetensi_keahlian = $request->class_competence;
+        $class->id_tingkatan  = Crypt::decrypt($request->class_steps);
+        $class->id_kompetensi_keahlian = Crypt::decrypt($request->class_competence);
         $class->save();
         
         return Main::generateAPI($class);
@@ -211,8 +194,8 @@ class ClassController extends Controller
 
         $term = ClassModel::where('id_kelas', $id)->firstOrFail();
         $term->nama_kelas = $request->class_name;
-        $term->tingkatan = $request->class_steps;
-        $term->kompetensi_keahlian = $request->class_competence;
+        $term->id_tingkatan = Crypt::decrypt($request->class_steps);
+        $term->id_kompetensi_keahlian = Crypt::decrypt($request->class_competence);
         $term->save();
 
         return Main::generateAPI($term);
