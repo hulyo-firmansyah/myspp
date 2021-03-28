@@ -19,27 +19,11 @@ class RedirectIfAuthenticated
      */
     public function handle($request, Closure $next, $guard = null)
     {
-        // $activeGuard = Main::getActiveGuard();
-        // if (Auth::guard($activeGuard)->check()) {
-        //     // dd('redirected', Auth::guard($activeGuard));
-        //     $role = Auth::guard($activeGuard)->user()->role;
-        //     switch($role){
-        //         case 'admin':{
-        //             return redirect()->route('a.index');
-        //         }
-        //         case 'worker':{
-        //             return redirect()->route('w.index');
-        //         }
-        //     }
-        // }
-        
-        // return $next($request);
         if (Auth::guard($guard)->check()) {
             if(Auth::user()->role == 'admin') return redirect(route('a.index'));
-            if(Auth::user()->role == 'worker') return redirect(route('w.index'));
-            // if(Auth::user()->role == 'student') redirect('a.index');
+            else if(Auth::user()->role == 'worker') return redirect(route('w.index'));
+            else if(Auth::user()->role == 'student') return redirect(route('s.index'));
         }
-
         return $next($request);
     }
 }
