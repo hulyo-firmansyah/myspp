@@ -20,6 +20,11 @@ class TransactionCartModel extends Model
         return $this->belongsTo(StudentModel::class, 'id_siswa', 'id_siswa');
     }
 
+    public function officer()
+    {
+        return $this->belongsTo(AdminModel::class, 'id_petugas', 'id_petugas');
+    }
+
     public function spp()
     {
         return $this->belongsTo(SppModel::class, 'id_spp', 'id_spp');
