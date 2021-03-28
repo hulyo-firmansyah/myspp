@@ -1,8 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     @include('_partials.head')
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @php
+
+    $role = $userData->role;
+    $theme = null;
+    if($role === 'admin') $theme = 'theme-1';
+    else if($role === 'worker') $theme = 'theme-2';
+    else $theme = 'theme-3';
+
+    @endphp
+    @if($role === Config::get('site_vars.role.FIRST'))
+    <style>
+        body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu>li.active>a:before {
+            background-color: #dc3545 !important;
+        }
+
+        .main-sidebar .sidebar-menu li.active a,
+        .main-sidebar .sidebar-menu li ul.dropdown-menu li.active>a,
+        .main-sidebar .sidebar-menu li ul.dropdown-menu li a:hover {
+            color: #dc3545;
+        }
+
+        body.sidebar-mini .main-sidebar .sidebar-menu>li.active>a {
+            background-color: #dc3545 !important;
+        }
+    </style>
+    @elseif($role === Config::get('site_vars.role.SECOND'))
+    <style>
+        /*body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu>li.active>a:before {
+            background-color: var(--primary);
+        }*/
+    </style>
+    @elseif($role === Config::get('site_vars.role.THIRD'))
+    <style>
+        body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu>li.active>a:before {
+            background-color: #63ed7a !important;
+        }
+
+        .main-sidebar .sidebar-menu li.active a,
+        .main-sidebar .sidebar-menu li ul.dropdown-menu li.active>a,
+        .main-sidebar .sidebar-menu li ul.dropdown-menu li a:hover {
+            color: #63ed7a;
+        }
+
+        body.sidebar-mini .main-sidebar .sidebar-menu>li.active>a {
+            background-color: #63ed7a !important;
+        }
+    </style>
+    @endif
 </head>
 
 <body>
@@ -36,4 +85,5 @@
 
     </script>
 </body>
+
 </html>

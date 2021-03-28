@@ -1,4 +1,12 @@
+@if($role === Config::get('site_vars.role.FIRST'))
+<div class="navbar-bg bg-danger"></div>
+@elseif($role === Config::get('site_vars.role.SECOND'))
 <div class="navbar-bg"></div>
+@elseif($role === Config::get('site_vars.role.THIRD'))
+<div class="navbar-bg bg-success"></div>
+@else
+<div class="navbar-bg bg-success"></div>
+@endif
 <nav class="navbar navbar-expand-lg main-navbar">
     <form class="form-inline mr-auto">
         <ul class="navbar-nav mr-3">
