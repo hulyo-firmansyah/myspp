@@ -69,8 +69,9 @@ class StudentsController extends Controller
 
     private function getClass($id = null)
     {   
+        $class = ClassModel::orderBy('id_tingkatan', 'ASC');
         if($id){
-            $class = ClassModel::find($id)->orderBy('tingkatan', 'ASC')->orderBy('kompetensi_keahlian', 'ASC')->firstOrFail();
+            $class = $class->find($id)->firstOrFail();
 
             $data = new \stdClass();
             $data->class_id = Crypt::encrypt($class->id_kelas);
@@ -80,14 +81,16 @@ class StudentsController extends Controller
 
             return $data;
         }else{
-            $class = ClassModel::orderBy('tingkatan', 'ASC')->orderBy('kompetensi_keahlian', 'ASC')->get();
+            $class = $class->get();
+            
             $data = collect([]);
             foreach(Main::genArray($class) as $cls){
+                    
                 $data->push([
                     'class_id' => Crypt::encrypt($cls->id_kelas),
-                    'class_competence' => $cls->kompetensi_keahlian,
+                    'class_competence' => $cls->competence->kompetensi_keahlian,
                     'class_name' => $cls->nama_kelas,
-                    'class' => Main::classStepsFilter($cls->tingkatan)." ".$cls->kompetensi_keahlian,
+                    'class' => Main::classStepsFilter($cls->step->tingkatan)." ".$cls->competence->kompetensi_keahlian,
                 ]);
             }
             return $data;
