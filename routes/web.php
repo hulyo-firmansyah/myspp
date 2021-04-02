@@ -133,4 +133,8 @@ Route::prefix('worker')->name('w.')->group(function(){
 Route::prefix('student')->name('s.')->group(function(){
     Route::get('/', 'Student\HomeController@index')->name('index');
     Route::get('/payment-history', 'Student\HomeController@paymentHistory')->name('history');
+    
+    Route::prefix('/api')->name('api.')->group(function(){
+        Route::get('/get-history/{id}', 'History\PaymentHistoryController@api_getStudentHistory')->name('get.history');
+    });
 });
