@@ -109,6 +109,8 @@ class PaymentHistoryController extends Controller
                 'transaction_code'  => $rd->kode_pembayaran,
                 'payment_nominal' => $rd->jumlah_bayar,
                 'payment_nominal_formatted' => Main::rupiahCurrency($rd->jumlah_bayar),
+                'payment_month' => Main::getMonth($rd->bulan_dibayar),
+                'payment_type' => ucfirst($rd->jenis_pembayaran),
 
                 'worker' => $worker->toArray(),
                 'student' => $student->toArray(),
@@ -126,7 +128,7 @@ class PaymentHistoryController extends Controller
 
     public function api_getHistory(Request $request)
     {
-        // if(!$request->ajax()) abort(404);
+        if(!$request->ajax()) abort(404);
 
         $history = $this->getHistories();
         return Main::generateAPI($history);
