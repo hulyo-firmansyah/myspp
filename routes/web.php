@@ -119,6 +119,7 @@ Route::prefix('/transaction')->name('transaction.')->group(function(){
 
 Route::prefix('/payment-history')->name('history.')->group(function(){
     Route::get('/', 'History\PaymentHistoryController@index')->name('index');
+    Route::get('/print-report/{code}', 'History\PaymentHistoryController@printReport')->name('print-note');
 
     Route::prefix('/api')->name('api.')->group(function(){
         Route::get('/get-history', 'History\PaymentHistoryController@api_getHistory')->name('get.history');
