@@ -26,7 +26,7 @@ class CreatePembayaranTable extends Migration
                 ->cascadeOnDelete()
                 ->references('id_siswa')
                 ->on('siswa');
-            $table->date('tgl_bayar');
+            $table->timestamp('tgl_bayar');
             $table->string('bulan_dibayar', 8);
             $table->string('tahun_dibayar', 4);
             $table->integer('id_spp')->length(11)->unsigned();
