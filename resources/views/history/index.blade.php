@@ -122,8 +122,10 @@
                     , title: 'Action'
                     , wrap: true
                     , orderable: false
-                    , "render": function(item) {
-                        return `<button type="button" class="btn btn-primary btn-sm student-details-trigger" data-id=${item.id} data-toggle="modal" data-target="#studentDetails"><i class="fa fa-info-circle" aria-hidden="true"></i> Details</button>`
+                , "render": function (item) {
+                    // return `<button type="button" class="btn btn-primary btn-sm student-details-trigger" data-id=${item.id} data-toggle="modal" data-target="#studentDetails"><i class="fa fa-info-circle" aria-hidden="true"></i> Details</button>
+                    // <a href="/payment-history/print-report/${item.transaction_code}" target="_blank" rel="noopener noreferrer" class="btn btn-dark btn-sm student-details-trigger"><i class="fa fa-print" aria-hidden="true"></i> Print</a>`
+                    return `<a href="/payment-history/print-report/${item.transaction_code}" target="_blank" rel="noopener noreferrer" class="btn btn-dark btn-sm student-details-trigger"><i class="fa fa-print" aria-hidden="true"></i> Print</a>`
                     }
                 }
             ]
