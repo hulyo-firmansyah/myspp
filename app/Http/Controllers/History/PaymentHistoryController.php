@@ -19,7 +19,9 @@ class PaymentHistoryController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'checkrole:admin,worker']);
+        $this->middleware('auth');
+        $this->middleware('checkrole:admin,worker')->except('api_getStudentHistory');
+        $this->middleware('checkrole:student', ['only' => ['api_getStudentHistory']]);
     }
 
     public function index()
@@ -55,7 +57,9 @@ class PaymentHistoryController extends Controller
         $defaults = [
             'id' => null,
             'trash' => false,
+            'student_id' => null
         ];
+
         $options = array_merge($defaults, $options);
         extract($options);
 
@@ -69,8 +73,9 @@ class PaymentHistoryController extends Controller
         ]);
 
         if($trash) $history = $history->onlyTrashed();
+        if($student_id) $history = $history->where('id_siswa', $student_id);
         $history = $history->get();
-
+        
         $data = collect([]);
         foreach(Main::genArray($history) as $rd){
             $worker = collect([
@@ -132,5 +137,14 @@ class PaymentHistoryController extends Controller
 
         $history = $this->getHistories();
         return Main::generateAPI($history);
+    }
+
+    public function api_getStudentHistory(Request $request, $id)
+    {
+        if(!$request->ajax()) abort(404);
+
+        $id = Crypt::decrypt($id);
+        $id = preg_replace('/[^0-9]/', '', $id) === "" ? null : intval(preg_replace('/[^0-9]/', '', $id));
+        return Main::generateAPI($this->getHistories(['student_id' => $id]));
     }
 }
