@@ -48,7 +48,7 @@ class TransactionController extends Controller
                 $payment->kode_pembayaran = $rTCode.$t_crt_i;
                 $payment->id_petugas = $officerId;
                 $payment->id_siswa = $sSId;
-                $payment->tgl_bayar = Carbon::now();
+                $payment->tgl_bayar = Carbon::now()->format('Y-m-d H:i:s');
                 $payment->bulan_dibayar = $t_crt->bulan_dibayar;
                 $payment->tahun_dibayar = Carbon::now()->format('Y');
                 $payment->id_spp = $t_crt->id_spp;
