@@ -28,6 +28,27 @@ class PaymentHistoryController extends Controller
         return view('history.index', compact('userData'));
     }
 
+    public function printReport($code)
+    {
+        $paymentData = PaymentModel::where('kode_pembayaran', $code)->first();
+        $data = new \stdClass();
+        $data->now_date = Carbon::now()->format('d-m-Y H:i');
+        $data->payment_code = strtoupper($paymentData->kode_pembayaran);
+        $data->payment_date = Carbon::parse($paymentData->tgl_bayar)->format('d-m-Y');
+        $data->payment_time = Carbon::parse($paymentData->tgl_bayar)->format('H:i');
+        $data->class = Main::classStepsFilter($paymentData->student->classes->step->tingkatan)." ".$paymentData->student->classes->competence->kompetensi_keahlian;
+        $data->nisn = $paymentData->student->nisn;
+        $data->student = $paymentData->student->nama;
+        $data->officer = $paymentData->worker->nama_petugas;
+
+        $data->payment_month = Main::getMonth($paymentData->bulan_dibayar);
+        $data->payment_teaching_year = $paymentData->spp->tahun;
+        $data->payment_nominal = $paymentData->jumlah_bayar;
+        $data->payment_nominal_formatted = Main::rupiahCurrency($paymentData->jumlah_bayar);
+        $paymentData = $data;
+        return view('history.print-report', compact('paymentData'));
+    }
+
 
     private function getHistories(array $options = array())
     {
