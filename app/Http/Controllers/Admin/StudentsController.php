@@ -81,9 +81,9 @@ class StudentsController extends Controller
 
             $data = new \stdClass();
             $data->class_id = Crypt::encrypt($class->id_kelas);
-            $data->class_competence = $class->kompetensi_keahlian;
+            $data->class_competence = $class->competence->kompetensi_keahlian;
             $data->class_name = $class->nama_kelas;
-            $data->class = Main::classStepsFilter($class->tingkatan)." ".$class->kompetensi_keahlian;
+            $data->class = Main::classStepsFilter($class->step->tingkatan)." ".$class->competence->kompetensi_keahlian;
 
             return $data;
         }else{
@@ -91,7 +91,6 @@ class StudentsController extends Controller
             
             $data = collect([]);
             foreach(Main::genArray($class) as $cls){
-                    
                 $data->push([
                     'class_id' => Crypt::encrypt($cls->id_kelas),
                     'class_competence' => $cls->competence->kompetensi_keahlian,
