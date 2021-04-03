@@ -23,7 +23,9 @@ class LoginController extends Controller
 
     public function form()
     {
-        return view('auth.login');
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle('Login');
+        return view('auth.login', compact('pageData'));
     }
 
     public function process(Request $request)
@@ -60,4 +62,5 @@ class LoginController extends Controller
         Auth::guard($guard)->logout();
         return redirect()->intended(route('login.form'));
     }
+    
 }
