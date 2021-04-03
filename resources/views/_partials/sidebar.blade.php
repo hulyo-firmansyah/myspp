@@ -5,10 +5,10 @@ $route = explode('/', $routeList);
 <div class="main-sidebar sidebar-style-2">
     <aside id="sidebar-wrapper">
         <div class="sidebar-brand">
-            <a href="index.html">MySPP</a>
+            <a href="index.html">{{ Config::get('site_vars.app_name') }}</a>
         </div>
         <div class="sidebar-brand sidebar-brand-sm">
-            <a href="index.html">St</a>
+            <a href="index.html">SPP</a>
         </div>
         <ul class="sidebar-menu">
             <li class="menu-header">Dashboard</li>
