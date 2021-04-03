@@ -26,8 +26,10 @@ class TransactionController extends Controller
     
     public function index()
     {   
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle('Transaksi');
         $userData = Main::getCurrectUserDetails();
-        return view('transaction.index', compact('userData'));
+        return view('transaction.index', compact('userData', 'pageData'));
     }
 
     public function transactionProcess(Request $request)

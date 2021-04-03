@@ -19,8 +19,10 @@ class HomeController extends Controller
 
     public function index()
     {
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle('Dashboard Siswa');
         $userData = Main::getCurrectUserDetails();
-        return view('student.index', compact('userData'));
+        return view('student.index', compact('userData', 'pageData'));
     }
 
     public function paymentHistory()

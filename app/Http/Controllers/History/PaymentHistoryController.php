@@ -26,8 +26,10 @@ class PaymentHistoryController extends Controller
 
     public function index()
     {
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle('Histori pembayaran');
         $userData = Main::getCurrectUserDetails();
-        return view('history.index', compact('userData'));
+        return view('history.index', compact('userData', 'pageData'));
     }
 
     public function printReport($code)
