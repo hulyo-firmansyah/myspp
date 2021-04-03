@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="/modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="/modules/datatables/Select-1.2.4/css/select.bootstrap4.min.css">
 <link rel="stylesheet" href="/modules/izitoast/css/iziToast.min.css">
+<meta id="s_id" content="{{$studentData->student_id}}" />
 @endsection
 @section('css_custom')
 
@@ -26,10 +27,21 @@
     </p>
 
     <div class="card">
+        <div class="card-body">
+            <address>
+                <strong>Pembayaran SPP atas nama :</strong><br>
+                {{$studentData->student_name}}<br>
+                <strong>{{$studentData->student_nisn}}</strong><br>
+            </address>
+        </div>
+    </div>
+
+    <div class="card">
         <div class="card-header">
-            <h4>Histori Pembayaran Transaksi</h4>
+            <h4>Histori Pembayaran SPP</h4>
         </div>
         <div class="card-body">
+
             <div class="table-responsive">
                 <table class="table table-striped" id="transactionHistoryTable">
                     <thead>
@@ -56,5 +68,78 @@
 @endsection
 @section('js_custom')
 <script>
+    $(document).ready(function () {
+        /* 
+            Element Initialization
+         */
+        const table = $('#transactionHistoryTable'),
+            studentId = $('#s_id').attr('content')
+
+        console.log(studentId)
+        /*
+            CRUD
+        */
+
+        /* Create */
+        /* End Create */
+        /* Read */
+        const historyDataTable = table.DataTable({
+            ajax: {
+                "url": `/student/api/get-history/${studentId}`
+                , "dataSrc": "data"
+            }
+            , 'columns': [{
+                title: "<input type='checkbox' id='historyCheckbox'>"
+                , "data": null
+                , orderable: false
+                , "render": function (itemdata) {
+                    return `<input type='checkbox' class="history-checkbox" data-id=${itemdata.id}>`
+                }
+            }
+                , {
+                title: 'Kode'
+                , 'data': null
+                , "render": (item) => {
+                    return `${item.transaction_code.toUpperCase()}`
+                }
+            }
+                , {
+                title: 'Petugas'
+                , 'data': 'worker.name'
+            }
+                , {
+                title: 'Periode Pembayaran'
+                , 'data': null
+                , "render": item => {
+                    return `${item.spp.step} / ${item.payment_month} ${item.spp.year}`
+                }
+            }
+                , {
+                title: 'Tanggal Pembayaran'
+                , 'data': 'created_at'
+            }
+                , {
+                title: 'Jumlah Bayar'
+                , 'data': 'payment_nominal_formatted'
+            }
+                , {
+                title: 'Jenis Pembayaran'
+                , 'data': 'payment_type'
+            }
+                //     , {
+                //     'data': null
+                //     , title: 'Action'
+                //     , wrap: true
+                //     , orderable: false
+                //     , "render": function (item) {
+                //         // return `<button type="button" class="btn btn-primary btn-sm student-details-trigger" data-id=${item.id} data-toggle="modal" data-target="#studentDetails"><i class="fa fa-info-circle" aria-hidden="true"></i> Details</button>
+                //         // <a href="/payment-history/print-report/${item.transaction_code}" target="_blank" rel="noopener noreferrer" class="btn btn-dark btn-sm student-details-trigger"><i class="fa fa-print" aria-hidden="true"></i> Print</a>`
+                //         return `<a href="/payment-history/print-report/${item.transaction_code}" target="_blank" rel="noopener noreferrer" class="btn btn-dark btn-sm student-details-trigger"><i class="fa fa-print" aria-hidden="true"></i> Print</a>`
+                //     }
+                // }
+            ]
+        })
+        /* End Read */
+    })
 </script>
 @endsection
