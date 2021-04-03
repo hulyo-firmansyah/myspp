@@ -12,8 +12,10 @@
 <div class="section-header">
     <h1>{{ $perclass->class }}</h1>
     <div class="section-header-button">
-        <button class="btn btn-primary" data-target="#studentAdd" data-toggle="modal"><i class="fa fa-plus" aria-hidden="true"></i> Tambah</button>
-        <a href="{{route('a.students.trash')}}" class="btn btn-danger ml-2" title="Recycle Bin"><i class="fa fa-trash" aria-hidden="true"></i></a>
+        <button class="btn btn-primary" data-target="#studentAdd" data-toggle="modal"><i class="fa fa-plus"
+                aria-hidden="true"></i> Tambah</button>
+        <a href="{{route('a.students.trash')}}" class="btn btn-danger ml-2" title="Recycle Bin"><i class="fa fa-trash"
+                aria-hidden="true"></i></a>
     </div>
     <div class="section-header-breadcrumb">
         <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
@@ -44,7 +46,8 @@
                     </div>
                 </div>
                 <div class="card-footer">
-                    <button class="btn btn-danger btn-sm" id="studentsDelete"><i class="fa fa-trash" aria-hidden="true"></i> Delete</button>
+                    <button class="btn btn-danger btn-sm" id="studentsDelete"><i class="fa fa-trash"
+                            aria-hidden="true"></i> Delete</button>
                 </div>
             </div>
         </div>
@@ -65,14 +68,16 @@
 @endsection
 @section('js_custom')
 
-<div class="modal fade" id="studentDetails" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+<div class="modal fade" id="studentDetails" tabindex="-1" role="dialog" aria-labelledby="modelTitleId"
+    aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
         </div>
     </div>
 </div>
 
-<div class="modal fade bd-example-modal-lg" id="studentAdd" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+<div class="modal fade bd-example-modal-lg" id="studentAdd" tabindex="-1" role="dialog" aria-labelledby="modelTitleId"
+    aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -152,19 +157,22 @@
                         <div class="col-12 col-6">
                             <div class="form-group">
                                 <label for="sNewYear">Tahun</label>
-                                <input type="text" class="form-control" name="" id="sNewYear" aria-describedby="helpId" placeholder="">
+                                <input type="text" class="form-control" name="" id="sNewYear" aria-describedby="helpId"
+                                    placeholder="">
                             </div>
                         </div>
                         <div class="col-12 col-6">
                             <div class="form-group">
                                 <label for="sNewNominal">Nominal</label>
-                                <input type="text" class="form-control" name="" id="sNewNominal" aria-describedby="helpId" placeholder="">
+                                <input type="text" class="form-control" name="" id="sNewNominal"
+                                    aria-describedby="helpId" placeholder="">
                             </div>
                         </div>
                     </div>
                     <div class="d-flex justify-content-end">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary ml-2"><i class="fa fa-paper-plane" aria-hidden="true"></i> Kirim</button>
+                        <button type="submit" class="btn btn-primary ml-2"><i class="fa fa-paper-plane"
+                                aria-hidden="true"></i> Kirim</button>
                     </div>
                 </form>
             </div>
@@ -174,7 +182,7 @@
 
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
 
         //Student new mask
         $('#sNewPhone').inputmask("(+62) 999-9999-9999")
@@ -184,7 +192,8 @@
             , 'autoGroup': true
             , 'prefix': 'Rp. '
             , 'rightAlign': false
-        , })
+            ,
+        })
 
         const toastSuccessDelete = () => {
             return iziToast.success({
@@ -221,64 +230,65 @@
                 , "dataSrc": "data"
             }
             , "columns": [{
-                    title: "<input type='checkbox' id='studentsCheckbox'>"
-                    , "data": null
-                    , orderable: false
-                    , "render": function(itemdata) {
-                        return `<input type='checkbox' class="students-checkbox" data-id=${itemdata.id}>`
-                    }
+                title: "<input type='checkbox' id='studentsCheckbox'>"
+                , "data": null
+                , orderable: false
+                , "render": function (itemdata) {
+                    return `<input type='checkbox' class="students-checkbox" data-id=${itemdata.id}>`
                 }
+            }
                 , {
-                    title: "Nama Siswa"
-                    , "data": "name"
-                }
+                title: "Nama Siswa"
+                , "data": "name"
+            }
                 , {
-                    title: "Username"
-                    , "data": "username"
-                }
+                title: "Username"
+                , "data": "username"
+            }
                 , {
-                    title: "Email"
-                    , "data": "email"
-                }
+                title: "Email"
+                , "data": "email"
+            }
                 , {
-                    title: "Dibuat"
-                    , "data": "created_at"
-                }
+                title: "Dibuat"
+                , "data": "created_at"
+            }
                 , {
-                    'data': null
-                    , title: 'Action'
-                    , wrap: true
-                    , orderable: false
-                    , "render": function(item) {
-                        return `<button type="button" class="btn btn-primary btn-sm student-details-trigger" data-id=${item.id} data-toggle="modal" data-target="#studentDetails"><i class="fa fa-info-circle" aria-hidden="true"></i> Details</button>`
-                    }
+                'data': null
+                , title: 'Action'
+                , wrap: true
+                , orderable: false
+                , "render": function (item) {
+                    return `<button type="button" class="btn btn-primary btn-sm student-details-trigger" data-id=${item.id} data-toggle="modal" data-target="#studentDetails"><i class="fa fa-info-circle" aria-hidden="true"></i> Details</button>`
                 }
-            , ]
+            }
+                ,]
         })
 
         let selectedStudents = []
             , selectedStudentsId = null
             , selectedStudentsData
 
-        $('table').on('click', '.student-details-trigger', function(e) {
+        $('table').on('click', '.student-details-trigger', function (e) {
             selectedStudentsId = $(this).data('id')
         })
 
-        $('#studentsDelete').click(function() {
+        $('#studentsDelete').click(function () {
             selectedStudents = []
-            $('.students-checkbox:checked').each(function(key, value) {
+            $('.students-checkbox:checked').each(function (key, value) {
                 selectedStudents.push(value.dataset.id)
             })
 
             if (selectedStudents.length > 0) {
                 swal({
-                        title: 'Apakah Anda yakin?'
-                        , text: 'Saat data dihapus Anda masih bisa melihatnya pada recycle bin.'
-                        , icon: 'warning'
-                        , buttons: true
-                        , dangerMode: true
-                        , showCancelButton: true
-                    , })
+                    title: 'Apakah Anda yakin?'
+                    , text: 'Saat data dihapus Anda masih bisa melihatnya pada recycle bin.'
+                    , icon: 'warning'
+                    , buttons: true
+                    , dangerMode: true
+                    , showCancelButton: true
+                    ,
+                })
                     .then((willDelete) => {
                         if (willDelete) {
                             $.ajax({
@@ -291,7 +301,7 @@
                                 , beforeSend: () => {
                                     loadingOverlay.css("display", "flex").fadeIn('fast')
                                 }
-                                , success: function(res) {
+                                , success: function (res) {
                                     loadingOverlay.fadeOut('fast')
                                     let {
                                         status
@@ -301,7 +311,7 @@
                                         return toastSuccessDelete()
                                     }
                                 }
-                                , error: function(err, status, msg) {
+                                , error: function (err, status, msg) {
                                     loadingOverlay.fadeOut('fast')
                                     return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
                                 }
@@ -313,7 +323,7 @@
             return toastErrorDataNull()
         })
 
-        $('#studentsCheckbox').change(function() {
+        $('#studentsCheckbox').change(function () {
             const check = $(this).is(':checked')
             if (check) {
                 $('.students-checkbox').prop('checked', true);
@@ -326,7 +336,7 @@
         //modal
 
         //New
-        $('#sNewForm').on('submit', function(e) {
+        $('#sNewForm').on('submit', function (e) {
             e.preventDefault()
 
             const data = {
@@ -348,7 +358,7 @@
                 }]
             }
 
-            $.each(data, function(i, v) {
+            $.each(data, function (i, v) {
                 $(v[0]).removeClass('is-invalid').next().remove()
             })
 
@@ -372,7 +382,7 @@
                 , beforeSend: () => {
                     loadingOverlay.css("display", "flex").fadeIn('fast')
                 }
-                , success: function(res) {
+                , success: function (res) {
                     loadingOverlay.fadeOut('fast')
                     const {
                         status
@@ -380,17 +390,17 @@
                     } = JSON.parse(res)
                     if (status) {
                         studentsDataTable.ajax.reload()
-                        $.each(data, function(i, v) {
+                        $.each(data, function (i, v) {
                             $(v[0]).val('')
                         })
                         $('#studentAdd').modal('hide')
                         return toastSuccessAdd()
                     }
                 }
-                , error: function(err, status, msg) {
+                , error: function (err, status, msg) {
                     loadingOverlay.fadeOut('fast')
                     if (err.status === 422) {
-                        $.each(err.responseJSON.errors, function(i, v) {
+                        $.each(err.responseJSON.errors, function (i, v) {
                             $(data[i][0]).addClass('is-invalid')
                             $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
                         })
@@ -403,13 +413,13 @@
         })
 
         //Detail
-        $('#studentDetails').on('show.bs.modal', function(e) {
+        $('#studentDetails').on('show.bs.modal', function (e) {
             $.ajax({
                 url: `/admin/students/api/get-details/${selectedStudentsId}`
                 , beforeSend: () => {
                     loadingOverlay.css("display", "flex").fadeIn('fast')
                 }
-                , success: function(res) {
+                , success: function (res) {
                     loadingOverlay.fadeOut('fast')
                     let {
                         data
@@ -519,7 +529,7 @@
                                 </div>
                                 <div class="desc">
                                     <div class="font-weight-bold">Kelas</div>
-                                    <div>${selectedStudentsData.class}</div>
+                                    <div>${selectedStudentsData.class.map((value) => (value.selected ? `${value.steps} ${value.competence}` : '')).join('')}</div>
                                 </div>
                             </div>
                             <div class="row">
@@ -574,7 +584,7 @@
                         `)
                     }
                 }
-                , error: function(err, status, msg) {
+                , error: function (err, status, msg) {
                     loadingOverlay.fadeOut('fast')
                     $('#studentDetails').modal('hide')
                     return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
@@ -582,13 +592,13 @@
             })
         })
 
-        $('#studentDetails').on('hide.bs.modal', function(e) {
+        $('#studentDetails').on('hide.bs.modal', function (e) {
             $('#studentDetails .modal-dialog .modal-content').html('')
         })
 
         //action
         //update
-        $('#studentDetails').on('click', '#modalEdit', function(e) {
+        $('#studentDetails').on('click', '#modalEdit', function (e) {
             $('#studentDetails .modal-dialog .modal-content').html(`
                 <div class="modal-header">
                     <h5>Edit Data</h5>
@@ -648,9 +658,7 @@
                         <div class="form-group">
                             <label for="sDetClass">Kelas</label>
                             <select class="form-control" name="" id="sDetClass">
-                                @foreach($data as $cls)
-                                    <option value="{{$cls['class_id']}}">{{ $cls['class']}}</option>
-                                @endforeach
+                                ${selectedStudentsData.class.map((value) => `<option value="${value.id}" ${(value.selected ? 'selected' : '')} >${value.steps} ${value.competence}</option>`).join('')}
                             </select>
                         </div>
                         <div class="form-group">
@@ -668,7 +676,7 @@
             $('#sDetPhone').inputmask("(+62) 999-9999-9999")
         })
 
-        $('#studentDetails').on('submit', '#studentDetailsForm', function(e) {
+        $('#studentDetails').on('submit', '#studentDetailsForm', function (e) {
             e.preventDefault()
 
             const data = {
@@ -686,7 +694,7 @@
                 , 'student_address': ['#sDetAddress', e.target[9].value]
             }
 
-            $.each(data, function(i, v) {
+            $.each(data, function (i, v) {
                 $(v[0]).removeClass('is-invalid').next().remove()
             })
 
@@ -710,7 +718,7 @@
                 , beforeSend: () => {
                     loadingOverlay.css("display", "flex").fadeIn('fast')
                 }
-                , success: function(res) {
+                , success: function (res) {
                     loadingOverlay.fadeOut('fast')
                     const {
                         data
@@ -723,10 +731,10 @@
                         return toastSuccessEdit()
                     }
                 }
-                , error: function(err, status, msg) {
+                , error: function (err, status, msg) {
                     loadingOverlay.fadeOut('fast')
                     if (err.status === 422) {
-                        $.each(err.responseJSON.errors, function(i, v) {
+                        $.each(err.responseJSON.errors, function (i, v) {
                             $(data[i][0]).addClass('is-invalid')
                             $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
                         })
@@ -739,15 +747,16 @@
         })
 
         //delete
-        $('#studentDetails').on('click', '#modalDelete', function(e) {
+        $('#studentDetails').on('click', '#modalDelete', function (e) {
             swal({
-                    title: 'Apakah Anda yakin?'
-                    , text: 'Saat data dihapus Anda masih bisa melihatnya pada recycle bin.'
-                    , icon: 'warning'
-                    , buttons: true
-                    , dangerMode: true
-                    , showCancelButton: true
-                , })
+                title: 'Apakah Anda yakin?'
+                , text: 'Saat data dihapus Anda masih bisa melihatnya pada recycle bin.'
+                , icon: 'warning'
+                , buttons: true
+                , dangerMode: true
+                , showCancelButton: true
+                ,
+            })
                 .then((willDelete) => {
                     if (willDelete) {
                         $.ajax({
@@ -760,7 +769,7 @@
                             , beforeSend: () => {
                                 loadingOverlay.css("display", "flex").fadeIn('fast')
                             }
-                            , success: function(res) {
+                            , success: function (res) {
                                 loadingOverlay.fadeOut('fast')
                                 let {
                                     data
@@ -773,7 +782,7 @@
                                     return toastSuccessDelete()
                                 }
                             }
-                            , error: function(err, status, msg) {
+                            , error: function (err, status, msg) {
                                 loadingOverlay.fadeOut('fast')
                                 $('#studentDetails').modal('hide')
                                 return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
