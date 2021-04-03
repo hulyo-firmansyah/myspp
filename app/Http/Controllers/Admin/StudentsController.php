@@ -45,9 +45,11 @@ class StudentsController extends Controller
      */
     public function index()
     {
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle('Data siswa');
         $data = $this->getClass();
         $userData = Main::getCurrectUserDetails();
-        return view('admin.students.index', compact('data', 'userData'));
+        return view('admin.students.index', compact('data', 'userData', 'pageData'));
     }
 
     public function studentsByClass($class)
@@ -56,14 +58,18 @@ class StudentsController extends Controller
         $class = Crypt::decrypt($class);
         $class = preg_replace('/[^0-9]/', '', $class) === "" ? null : intval(preg_replace('/[^0-9]/', '', $class));
         $perclass = $this->getClass($class);
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle("Data siswa kelas $perclass->class");
         $data = $this->getClass();
-        return view('admin.students.class_students', compact('perclass', 'data', 'userData'));
+        return view('admin.students.class_students', compact('perclass', 'data', 'userData', 'pageData'));
     }
 
     public function trash()
     {
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle('Keranjang sampah(Siswa)');
         $userData = Main::getCurrectUserDetails();
-        return view('admin.students.trashed', compact('userData'));
+        return view('admin.students.trashed', compact('userData', 'pageData'));
     }
 
 

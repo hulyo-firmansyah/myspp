@@ -39,14 +39,20 @@ class WorkersController extends Controller
     public function index()
     {
         $userData = Main::getCurrectUserDetails();
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle('Data petugas');
+
         $worker = UserModel::with('workers')->where('role','worker')->get();
-        return view('admin.workers.index', compact($worker, 'userData'));
+        return view('admin.workers.index', compact($worker, 'userData', 'pageData'));
     }
 
     public function trash()
     {
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle('Keranjang sampah(Petugas)');
+
         $userData = Main::getCurrectUserDetails();
-        return view('admin.workers.trashed', compact('userData'));
+        return view('admin.workers.trashed', compact('userData', 'pageData'));
     }
 
 

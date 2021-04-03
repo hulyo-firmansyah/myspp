@@ -69,15 +69,20 @@ class SppController extends Controller
      */
     public function index()
     {
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle('Data SPP');
         $userData = Main::getCurrectUserDetails();
         $stepData = $this->getSteps();
-        return view('admin.spps.index', compact('userData', 'stepData'));
+        return view('admin.spps.index', compact('userData', 'stepData', 'pageData'));
     }
 
     public function trash()
     {
+        return abort(404);
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle('Keranjang sampah(SPP)');
         $userData = Main::getCurrectUserDetails();
-        return view('admin.spps.trashed', compact('userData'));
+        return view('admin.spps.trashed', compact('userData', 'pageData'));
     }
 
     //pilih pembayaran : Pembayaran spp kelas XXXX Tahun XXXX
