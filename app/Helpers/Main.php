@@ -203,12 +203,9 @@ class Main{
         $data->name = $user->student->nama;
         return $data;
     }
-
-    public function checkRole($role)
+    
+    public static function createTitle($title = "")
     {
-        $this->load->library('session');
-        if(!$this->session->userdata('role') == $role){
-            abort(404);
-        }
+        return "$title"." &mdash; ".config('site_vars.app_name');
     }
 }
