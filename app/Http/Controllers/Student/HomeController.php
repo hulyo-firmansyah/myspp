@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Http\Request;
 use App\Helpers\Main;
+
+use App\StudentModel;
 
 class HomeController extends Controller
 {
@@ -23,6 +26,13 @@ class HomeController extends Controller
     public function paymentHistory()
     {
         $userData = Main::getCurrectUserDetails();
-        return view('student.history', compact('userData'));
+        $student = StudentModel::where('data_of', \Auth::user()->id_user)->first();
+        $studentData = new \stdClass();
+        $studentData->student_id = Crypt::encrypt($student->id_siswa);
+        $studentData->student_name = $student->nama;
+        $studentData->student_nisn = $student->nisn;
+
+        // dd($userData, \Auth::user(), $studentData, $student);
+        return view('student.history', compact('userData', 'studentData'));
     }
 }
