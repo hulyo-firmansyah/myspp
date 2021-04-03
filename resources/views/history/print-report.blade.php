@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Print NotaFDNRL53V</title>
+    <title>Cetak Laporan {{$paymentData->payment_code}} || {{$paymentData->student}}</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- General CSS Files -->
@@ -30,6 +30,7 @@
                 display: none !important;
             }
         }
+
     </style>
 </head>
 
