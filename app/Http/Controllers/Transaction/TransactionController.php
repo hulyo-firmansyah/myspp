@@ -65,8 +65,17 @@ class TransactionController extends Controller
 
     private function generateTransactionCode()
     {
-        $code = dechex(Carbon::now()->timestamp);
-        return $code;
+        // $code = dechex(Carbon::now()->timestamp);
+        // return $code;
+        $length = 8;
+        $characters = '0123456789abcdefghijklmnopqrs092u3tuvwxyzaskdhfhf9882323ABCDEFGHIJKLMNksadf9044OPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+
+        return $randomString;
     }
 
     private function getTransactionCart($studentId)
@@ -106,7 +115,6 @@ class TransactionController extends Controller
 
         $studentId = Crypt::decrypt($request->id);
         $studentId = preg_replace('/[^0-9]/', '', $studentId) === "" ? null : intval(preg_replace('/[^0-9]/', '', $studentId));
-        // $studentId = 14;//Vera
         $studentData = StudentModel::findOrFail($studentId);
         $paymentType = SppModel::get();
         $paymentTemp = collect([]);
