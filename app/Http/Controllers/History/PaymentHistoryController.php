@@ -107,7 +107,7 @@ class PaymentHistoryController extends Controller
                 'year' => $rd->spp->tahun,
                 'nominal' => $rd->spp->nominal,
                 'periode' => $rd->spp->periode,
-                'step' => Main::classStepsFilter($rd->spp->tingkat),
+                'step' => Main::classStepsFilter($rd->spp->step->tingkatan),
             ]);
             $data->push([
                 'id' => Crypt::encrypt($rd->id_pembayaran),
