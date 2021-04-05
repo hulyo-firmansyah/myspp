@@ -30,6 +30,7 @@ $route = explode('/', $routeList);
                 <ul class="dropdown-menu has-dropdown">
                     <li class="{{ in_array('workers', $route) ? 'active' : null}}"><a href="{{route('a.workers.index')}}" class="nav-link"><i class="fas fa-users"></i><span>Petugas</span></a></li>
                     <li class="{{ in_array('students', $route) ? 'active' : null}}"><a href="{{route('a.students.index')}}" class="nav-link"><i class="fas fa-graduation-cap"></i><span>Siswa</span></a></li>
+                    <li class="{{ in_array('competences', $route) ? 'active' : null}}"><a href="{{route('a.competence.index')}}" class="nav-link"><i class="fas fa-school"></i><span>Jurusan</span></a></li>
                     <li class="{{ in_array('class', $route) ? 'active' : null}}"><a href="{{route('a.class.index')}}" class="nav-link"><i class="fas fa-chalkboard-teacher"></i><span>Kelas</span></a></li>
                     <li class="{{ in_array('spps', $route) ? 'active' : null}}"><a href="{{route('a.spps.index')}}" class="nav-link"><i class="fas fa-clipboard-list"></i><span>SPP</span></a></li>
                 </ul>
