@@ -42,9 +42,9 @@ class TransactionController extends Controller
         $sSId = preg_replace('/[^0-9]/', '', $sSId) === "" ? null : intval(preg_replace('/[^0-9]/', '', $sSId));
         $officerId = AdminModel::where('data_of', Auth::user()->id_user)->first()->id_petugas;
 
-        // dd($rTCode, $sTCode, $rSId, $sSId);
         if($rTCode === $sTCode && $rSId === $sSId){
             $transactionCart = TransactionCartModel::where('id_siswa', $sSId);
+            // dd($rTCode, $sTCode, $rSId, $sSId, $officerId, $transactionCart->get());
             foreach(Main::genArray($transactionCart->get()) as $t_crt_i => $t_crt){
                 $payment = new PaymentModel;
                 $payment->kode_pembayaran = $rTCode.$t_crt_i;
@@ -57,8 +57,11 @@ class TransactionController extends Controller
                 $payment->jumlah_bayar = $t_crt->jumlah_bayar;
                 $payment->save();
             }
-            $studentName = $transactionCart->first()->student->nama;
+
+            $transactionClone = clone $transactionCart;
+            $studentName = $transactionClone->first()->student->nama;
             $transactionCart->delete();
+            $request->session()->forget('t_data');
             return redirect()->route('transaction.index')->with('success', ['msg' => 'Pembayaran Berhasil!', 'student_name' => $studentName, 'date' => Carbon::now()->format('d-m-Y')]);
         }
         return redirect()->route('transaction.index')->with('error', 'Pembayaran gagal!');
@@ -118,7 +121,9 @@ class TransactionController extends Controller
         $studentId = Crypt::decrypt($request->id);
         $studentId = preg_replace('/[^0-9]/', '', $studentId) === "" ? null : intval(preg_replace('/[^0-9]/', '', $studentId));
         $studentData = StudentModel::findOrFail($studentId);
-        $paymentType = SppModel::get();
+        $studentClone = clone $studentData;
+        $studentSteps = $studentClone->classes->step->id_tingkatan;
+        $paymentType = SppModel::where('id_tingkatan' ,'<=', $studentSteps)->get();
         $paymentTemp = collect([]);
         foreach(Main::genArray($paymentType) as $payment){
             // $getPayment = PaymentModel::where('id_spp', $payment->id_spp)
@@ -133,8 +138,7 @@ class TransactionController extends Controller
                 'nominal' => $payment->nominal,
                 'nominal_formatted' => Main::rupiahCurrency($payment->nominal),
                 'periode' => 12,
-                'steps' => Main::classStepsFilter($payment->step->tingkatan),
-                'payment_info_per_periode'
+                'steps' => Main::classStepsFilter($payment->step->tingkatan)
             ]);
             //SPP XII RPL 1 | 2020
         }
@@ -225,7 +229,7 @@ class TransactionController extends Controller
             'spp_id' => 'required',
             't_code' => 'required',
             's_id' => 'required',
-            'nominal' => 'required|numeric',
+            'nominal' => 'required|numeric|min:1',
             'month' => 'required|numeric|min:1|max:12'
         ]);
 
