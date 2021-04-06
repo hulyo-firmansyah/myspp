@@ -160,7 +160,7 @@ class Main{
             case 3 :
                 return 'Maret';
             case 4 :
-                return 'Apri';
+                return 'April';
             case 5 :
                 return 'Mei';
             case 6 :
