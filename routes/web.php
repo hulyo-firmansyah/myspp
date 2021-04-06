@@ -125,6 +125,7 @@ Route::prefix('/transaction')->name('transaction.')->group(function(){
     Route::prefix('/api')->name('api.')->group(function(){
         Route::get('/student/search/{q?}', 'Transaction\TransactionController@api_searchStudent')->name('students.search');
         Route::get('/get-transaction/{id?}', 'Transaction\TransactionController@api_getTransaction')->name('get.transaction');
+        Route::get('/get-payment-type-details/{id?}', 'Transaction\TransactionController@api_getPaymentTypeDetails')->name('get.payment-type.details');
 
         Route::post('/add-to-cart', 'Transaction\TransactionController@api_addToCartTransaction')->name('add-to-cart-transaction');
         Route::delete('/remove-from-cart/{id?}', 'Transaction\TransactionController@api_removeFromCartTransaction')->name('remove-from-cart-transaction');
