@@ -177,9 +177,7 @@ class StudentsController extends Controller
 
         $student->users->username = $request->student_username;
         $student->users->email = $request->student_email;
-        if(isset($request->student_password)){
-            $student->users->password = bcrypt($request->student_password);
-        }
+        if(isset($request->student_password)) $student->users->password = bcrypt($request->student_password);
         $student->nisn = $request->student_nisn;
         $student->nis = $request->student_nis;
         $student->nama = $request->student_name;

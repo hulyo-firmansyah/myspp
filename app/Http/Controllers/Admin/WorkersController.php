@@ -26,8 +26,7 @@ class WorkersController extends Controller
             'name' => 'required',
             'username' => 'required|min:4|unique:users,username,'.$id.',id_user',
             'email' => 'required|email|unique:users,email,'.$id.',id_user',
-            'password' => 'required',
-            'password_conf' => 'required|same:password'
+            'password_conf' => 'same:password'
         ]);
     }
 
@@ -200,8 +199,9 @@ class WorkersController extends Controller
         $term = UserModel::where('id_user', $id)->firstOrFail();
         $term->username = $request->username;
         $term->email = $request->email;
-        $term->password = $request->password;
+        if(isset($request->student_password)) $term->password = $request->password;
         $term->workers->nama_petugas = $request->name;
+        $term->workers->save();
         $term->save();
 
         return Main::generateAPI($term);

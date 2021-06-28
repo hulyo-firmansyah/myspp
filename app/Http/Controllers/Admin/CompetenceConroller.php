@@ -28,6 +28,15 @@ class CompetenceConroller extends Controller
         return view('admin.competence.index', compact('userData', 'pageData'));
     }
 
+    public function trash()
+    {
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle('Keranjang sampah(Jurusan)');
+
+        $userData = Main::getCurrectUserDetails();
+        return view('admin.competence.trashed', compact('userData', 'pageData'));
+    }
+
 
     private function getCompetence(array $options = array())
     {

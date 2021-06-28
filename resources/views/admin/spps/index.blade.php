@@ -12,10 +12,8 @@
 <div class="section-header">
     <h1>SPP</h1>
     <div class="section-header-button">
-        <button class="btn btn-primary" data-target="#sppAdd" data-toggle="modal"><i class="fa fa-plus"
-                aria-hidden="true"></i> Tambah</button>
-        {{-- <a href="{{route('a.spps.trash')}}" class="btn btn-danger ml-2" title="Recycle Bin"><i class="fa fa-trash"
-                aria-hidden="true"></i></a> --}}
+        <button class="btn btn-primary" data-target="#sppAdd" data-toggle="modal"><i class="fa fa-plus" aria-hidden="true"></i> Tambah</button>
+        {{-- <a href="{{route('a.spps.trash')}}" class="btn btn-danger ml-2" title="Recycle Bin"><i class="fa fa-trash" aria-hidden="true"></i></a> --}}
     </div>
     <div class="section-header-breadcrumb">
         <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
@@ -102,17 +100,16 @@
                         </div>
                         <div class="col-6">
                             <div class="form-group">
-                                <label for="sppNewNominal">Nominal</label>
+                                <label for="sppNewNominal">Nominal/Bulan</label>
                                 <input type="text" class="form-control" id="sppNewNominal" placeholder="" value="">
-                                <small>Nominal akan dikalikan sejumlah periode.</small>
+                                <small>*Nominal akan dikalikan 12.</small>
                             </div>
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-end">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary ml-2"><i class="fa fa-paper-plane"
-                                aria-hidden="true"></i> Kirim</button>
+                        <button type="submit" class="btn btn-primary ml-2"><i class="fa fa-paper-plane" aria-hidden="true"></i> Kirim</button>
                     </div>
                 </form>
             </div>
@@ -128,7 +125,7 @@
 </div>
 
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
 
         const toastSuccessDelete = () => {
             return iziToast.success({
@@ -189,7 +186,7 @@
         /*Create*/
 
         /* Submit new SPP */
-        $('#sppAdd').on('submit', '#sppNewForm', function (e) {
+        $('#sppAdd').on('submit', '#sppNewForm', function(e) {
             e.preventDefault()
 
             const data = {
@@ -199,7 +196,7 @@
                 , 'nominal': ['#sppNewNominal', e.target[2].inputmask.unmaskedvalue()]
             }
 
-            $.each(data, function (i, v) {
+            $.each(data, function(i, v) {
                 $(v[0]).removeClass('is-invalid').next().remove()
             })
 
@@ -215,7 +212,7 @@
                 , beforeSend: () => {
                     loadingOverlay.css("display", "flex").fadeIn('fast')
                 }
-                , success: function (res) {
+                , success: function(res) {
                     const {
                         status
                         , length
@@ -224,16 +221,16 @@
                         loadingOverlay.fadeOut('fast')
                         $('#sppAdd').modal('hide')
                         sppsDataTable.ajax.reload()
-                        $.each(data, function (i, v) {
+                        $.each(data, function(i, v) {
                             $(v[0]).val('')
                         })
                         return toastSuccessAdd()
                     }
                 }
-                , error: function (err, status, msg) {
+                , error: function(err, status, msg) {
                     loadingOverlay.fadeOut('fast')
                     if (err.status === 422) {
-                        $.each(err.responseJSON.errors, function (i, v) {
+                        $.each(err.responseJSON.errors, function(i, v) {
                             console.log(i, v)
                             $(data[i][0]).addClass('is-invalid')
                             $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
@@ -254,54 +251,53 @@
                 , "dataSrc": "data"
             }
             , "columns": [{
-                title: "#"
-                , "data": null
-                , orderable: false
-                , "render": function (itemdata) {
-                    return `#`
+                    title: "#"
+                    , "data": null
+                    , orderable: false
+                    , "render": function(itemdata) {
+                        return `#`
+                    }
                 }
-            }
                 , {
-                title: "Tahun Ajaran"
-                , "data": "year"
-            }
-                , {
-                title: "Nominal"
-                , "data": "nominal_formatted"
-            }
-                , {
-                title: "Kelas"
-                , "data": null
-                , "render": item => {
-                    return item.steps.map((v, i) => v.selected ? v.steps : null).join('')
+                    title: "Tahun Ajaran"
+                    , "data": "year"
                 }
-            }
+                , {
+                    title: "Nominal"
+                    , "data": "nominal_formatted"
+                }
+                , {
+                    title: "Kelas"
+                    , "data": null
+                    , "render": item => {
+                        return item.steps.map((v, i) => v.selected ? v.steps : null).join('')
+                    }
+                }
                 //     , {
                 //     title: "Periode"
                 //     , "data": "periode"
                 // }
                 , {
-                'data': null
-                , title: 'Action'
-                , wrap: true
-                , orderable: false
-                , "render": function (item) {
-                    return `<button type="button" class="btn btn-primary btn-sm spp-details-trigger" data-id=${item.id} data-toggle="modal" data-target="#sppDetails"><i class="fa fa-info-circle" aria-hidden="true"></i> Details</button>`
+                    'data': null
+                    , title: 'Action'
+                    , wrap: true
+                    , orderable: false
+                    , "render": function(item) {
+                        return `<button type="button" class="btn btn-primary btn-sm spp-details-trigger" data-id=${item.id} data-toggle="modal" data-target="#sppDetails"><i class="fa fa-info-circle" aria-hidden="true"></i> Details</button>`
+                    }
                 }
-            }
-                ,]
-            ,
-        })
+            , ]
+        , })
 
         /* Modal Details */
-        $('#sppDetails').on('show.bs.modal', function (e) {
+        $('#sppDetails').on('show.bs.modal', function(e) {
             const sppDetailsModalContent = $('#sppDetails .modal-dialog .modal-content')
             $.ajax({
                 url: `/admin/spps/api/get-details/${selectedSppsId}`
                 , beforeSend: () => {
                     loadingOverlay.css("display", "flex").fadeIn('fast')
                 }
-                , success: function (res) {
+                , success: function(res) {
                     loadingOverlay.fadeOut('fast')
                     let {
                         data
@@ -349,6 +345,8 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!--
                             <div class="d-flex py-2">
                                 <div class="icon mr-3">
                                     <i class="fas fa-globe-asia"></i>
@@ -358,6 +356,8 @@
                                     <div>${selectedSppsData.periode} Kali</div>
                                 </div>
                             </div>
+                            -->
+
                             <div class="row">
                                 <div class="col-6">
                                     <div class="d-flex py-2">
@@ -365,8 +365,8 @@
                                             <i class="fas fa-money-bill-wave"></i>
                                         </div>
                                         <div class="desc">
-                                            <div class="font-weight-bold">Biaya Per Periode</div>
-                                            <div>${selectedSppsData.nominal_per_steps_formatted}</div>
+                                            <div class="font-weight-bold">Biaya Per Bulan</div>
+                                            <div>${selectedSppsData.nominal_per_month_formatted}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -376,7 +376,7 @@
                                             <i class="fas fa-dollar-sign"></i>
                                         </div>
                                         <div class="desc">
-                                            <div class="font-weight-bold">Total Yang Harus Dibayar</div>
+                                            <div class="font-weight-bold">Total Biaya</div>
                                             <div>${selectedSppsData.nominal_formatted}</div>
                                         </div>
                                     </div>
@@ -408,7 +408,7 @@
                     `)
                     sppDetailsModalContent.slideDown('slow')
                 }
-                , error: function (err, status, msg) {
+                , error: function(err, status, msg) {
                     loadingOverlay.fadeOut('fast')
                     $('#sppDetails').modal('hide')
                     return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
@@ -419,7 +419,7 @@
         /*End Read*/
 
         /*Update*/
-        $('#sppDetails').on('click', '#modalEdit', function (e) {
+        $('#sppDetails').on('click', '#modalEdit', function(e) {
             $('#sppDetails .modal-dialog .modal-content').html(` 
                 <div class="modal-header">
                     <h5>Tambah Pembayaran SPP</h5>
@@ -445,9 +445,9 @@
                             </div>
                             <div class="col-6">
                                 <div class="form-group">
-                                    <label for="sppDetNominal">Nominal</label>
-                                    <input type="text" class="form-control" id="sppDetNominal" placeholder="" value="${selectedSppsData.nominal}">
-                                    <small>Nominal akan dikalikan sejumlah periode.</small>
+                                    <label for="sppDetNominal">Nominal/Bulan</label>
+                                    <input type="text" class="form-control" id="sppDetNominal" placeholder="" value="${selectedSppsData.nominal_per_month}">
+                                    <small>*Nominal akan dikalikan 12.</small>
                                 </div>
                             </div>
                         </div>
@@ -471,7 +471,7 @@
             })
         })
 
-        $('#sppDetails').on('submit', '#sppDetailsForm', function (e) {
+        $('#sppDetails').on('submit', '#sppDetailsForm', function(e) {
             e.preventDefault()
 
             const data = {
@@ -481,7 +481,7 @@
                 , 'nominal': ['#sppDetNominal', e.target[2].inputmask.unmaskedvalue()]
             }
 
-            $.each(data, function (i, v) {
+            $.each(data, function(i, v) {
                 $(v[0]).removeClass('is-invalid').next().remove()
             })
 
@@ -497,7 +497,7 @@
                 , beforeSend: () => {
                     loadingOverlay.css("display", "flex").fadeIn('fast')
                 }
-                , success: function (res) {
+                , success: function(res) {
                     loadingOverlay.fadeOut('fast')
                     const {
                         data
@@ -510,10 +510,10 @@
                         return toastSuccessEdit()
                     }
                 }
-                , error: function (err, status, msg) {
+                , error: function(err, status, msg) {
                     loadingOverlay.fadeOut('fast')
                     if (err.status === 422) {
-                        $.each(err.responseJSON.errors, function (i, v) {
+                        $.each(err.responseJSON.errors, function(i, v) {
                             $(data[i][0]).addClass('is-invalid')
                             $(`<div class="invalid-feedback">${v}</div>`).insertAfter($(data[i][0]))
                         })
@@ -527,17 +527,16 @@
         /*End Update*/
 
         /*Delete*/
-        $('#sppDetails').on('click', '#modalDelete', function (e) {
+        $('#sppDetails').on('click', '#modalDelete', function(e) {
             swal({
-                title: 'Apakah Anda yakin?'
-                , text: 'Terdapat Transaksi pada SPP ini. Jika Anda menghapus data spp maka data transaksi juga akan terhapus dan tidak akan bisa dikembalikan.'
-                , icon: 'warning'
-                , buttons: true
-                , dangerMode: true
-                , showCancelButton: true
-                , reverseButtons: true
-                ,
-            })
+                    title: 'Apakah Anda yakin?'
+                    , text: 'Terdapat Transaksi pada SPP ini. Jika Anda menghapus data spp maka data transaksi juga akan terhapus dan tidak akan bisa dikembalikan.'
+                    , icon: 'warning'
+                    , buttons: true
+                    , dangerMode: true
+                    , showCancelButton: true
+                    , reverseButtons: true
+                , })
                 .then((willDelete) => {
                     if (willDelete) {
                         $.ajax({
@@ -550,7 +549,7 @@
                             , beforeSend: () => {
                                 loadingOverlay.css("display", "flex").fadeIn('fast')
                             }
-                            , success: function (result) {
+                            , success: function(result) {
                                 loadingOverlay.fadeOut('fast')
                                 let {
                                     data
@@ -563,7 +562,7 @@
                                     return toastSuccessDelete()
                                 }
                             }
-                            , error: function (err, status, msg) {
+                            , error: function(err, status, msg) {
                                 loadingOverlay.fadeOut('fast')
                                 $('#sppDetails').modal('hide')
                                 return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
@@ -575,11 +574,11 @@
         })
         /*End Delete*/
 
-        $('table').on('click', '.spp-details-trigger', function (e) {
+        $('table').on('click', '.spp-details-trigger', function(e) {
             selectedSppsId = $(this).data('id')
         })
 
-        $('#sppDetails').on('hide.bs.modal', function (e) {
+        $('#sppDetails').on('hide.bs.modal', function(e) {
             const sppDetailsModalContent = $('#sppDetails .modal-dialog .modal-content')
             sppDetailsModalContent.slideUp('slow')
             setTimeout(() => {

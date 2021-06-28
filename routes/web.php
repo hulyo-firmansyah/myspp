@@ -69,14 +69,18 @@ Route::prefix('admin')->name('a.')->group(function(){
     Route::prefix('/competences')->name('competence.')->group(function(){
         Route::get('/', 'Admin\CompetenceConroller@index')->name('index');
 
+        Route::get('/trash', 'Admin\CompetenceConroller@trash')->name('trash');
         Route::prefix('/api')->name('api.')->group(function(){
             Route::get('/get', 'Admin\CompetenceConroller@api_get')->name('get');
             Route::get('/get-details/{id}', 'Admin\CompetenceConroller@api_getDetails')->name('get_details');
 
             Route::post('/store', 'Admin\CompetenceConroller@api_store')->name('store');
             Route::put('/update/{id}', 'Admin\CompetenceConroller@api_update')->name('update');
-
             Route::delete('/delete-selected', 'Admin\CompetenceConroller@api_deleteSelected')->name('delete');
+            
+            Route::get('/get/trash', 'Admin\CompetenceConroller@api_getTrashed')->name('get.trash');
+            Route::put('/restore-selected', 'Admin\CompetenceConroller@api_restoreSelected')->name('restore');
+            Route::delete('/force-delete', 'Admin\CompetenceConroller@api_forceDeleteSelected')->name('force-delete');
         });
     });
 
