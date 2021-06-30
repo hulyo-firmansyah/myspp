@@ -1,4 +1,5 @@
 <head>
+<meta name="google-site-verification" content="rHMGpeXCnm9YjDfC-I8Fx1KdjMbt0MMidNrBB4vRCs8" />
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
     <title>@yield('page-title')</title>
