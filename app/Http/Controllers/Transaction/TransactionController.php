@@ -26,8 +26,10 @@ class TransactionController extends Controller
     
     public function index()
     {   
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle('Transaksi');
         $userData = Main::getCurrectUserDetails();
-        return view('transaction.index', compact('userData'));
+        return view('transaction.index', compact('userData', 'pageData'));
     }
 
     public function transactionProcess(Request $request)
@@ -40,9 +42,9 @@ class TransactionController extends Controller
         $sSId = preg_replace('/[^0-9]/', '', $sSId) === "" ? null : intval(preg_replace('/[^0-9]/', '', $sSId));
         $officerId = AdminModel::where('data_of', Auth::user()->id_user)->first()->id_petugas;
 
-        // dd($rTCode, $sTCode, $rSId, $sSId);
         if($rTCode === $sTCode && $rSId === $sSId){
             $transactionCart = TransactionCartModel::where('id_siswa', $sSId);
+            // dd($rTCode, $sTCode, $rSId, $sSId, $officerId, $transactionCart->get());
             foreach(Main::genArray($transactionCart->get()) as $t_crt_i => $t_crt){
                 $payment = new PaymentModel;
                 $payment->kode_pembayaran = $rTCode.$t_crt_i;
@@ -55,8 +57,11 @@ class TransactionController extends Controller
                 $payment->jumlah_bayar = $t_crt->jumlah_bayar;
                 $payment->save();
             }
-            $studentName = $transactionCart->first()->student->nama;
+
+            $transactionClone = clone $transactionCart;
+            $studentName = $transactionClone->first()->student->nama;
             $transactionCart->delete();
+            $request->session()->forget('t_data');
             return redirect()->route('transaction.index')->with('success', ['msg' => 'Pembayaran Berhasil!', 'student_name' => $studentName, 'date' => Carbon::now()->format('d-m-Y')]);
         }
         return redirect()->route('transaction.index')->with('error', 'Pembayaran gagal!');
@@ -116,7 +121,9 @@ class TransactionController extends Controller
         $studentId = Crypt::decrypt($request->id);
         $studentId = preg_replace('/[^0-9]/', '', $studentId) === "" ? null : intval(preg_replace('/[^0-9]/', '', $studentId));
         $studentData = StudentModel::findOrFail($studentId);
-        $paymentType = SppModel::get();
+        $studentClone = clone $studentData;
+        $studentSteps = $studentClone->classes->step->id_tingkatan;
+        $paymentType = SppModel::where('id_tingkatan' ,'<=', $studentSteps)->get();
         $paymentTemp = collect([]);
         foreach(Main::genArray($paymentType) as $payment){
             // $getPayment = PaymentModel::where('id_spp', $payment->id_spp)
@@ -131,8 +138,7 @@ class TransactionController extends Controller
                 'nominal' => $payment->nominal,
                 'nominal_formatted' => Main::rupiahCurrency($payment->nominal),
                 'periode' => 12,
-                'steps' => Main::classStepsFilter($payment->step->tingkatan),
-                'payment_info_per_periode'
+                'steps' => Main::classStepsFilter($payment->step->tingkatan)
             ]);
             //SPP XII RPL 1 | 2020
         }
@@ -158,6 +164,63 @@ class TransactionController extends Controller
         return Main::generateAPI($data);
     }
 
+    public function api_getPaymentTypeDetails(Request $request, $id)
+    {
+        if(!$request->ajax()) abort(404);
+
+        $id = Crypt::decrypt($id);
+        $id = preg_replace('/[^0-9]/', '', $id) === "" ? null : intval(preg_replace('/[^0-9]/', '', $id));
+        $s_id = Crypt::decrypt($request->session()->get('t_data')['s_id']);
+        $s_id = preg_replace('/[^0-9]/', '', $s_id) === "" ? null : intval(preg_replace('/[^0-9]/', '', $s_id));
+        $sppData = SppModel::with('payments')->where('id_spp', $id)->first();
+
+        $data = array_flip(["1","2","3","4","5","6","7","8","9","10","11","12"]);
+
+        $paymentPerMonth = $sppData->nominal / 12;
+        foreach(Main::genArray($sppData->payments) as $payment){
+            if($payment->id_siswa === $s_id)
+                $data[$payment->bulan_dibayar] = [
+                    'payment_month' => intval($payment->bulan_dibayar),
+                    'payment_month_formatted' => Main::getMonth($payment->bulan_dibayar),
+                    'payment_total' => $sppData->nominal,
+                    'payment_total_formatted' => Main::rupiahCurrency($sppData->nominal),
+                    'payment_per_month' => $paymentPerMonth,
+                    'payment_per_month_formatted' => Main::rupiahCurrency($paymentPerMonth),
+                    'payment_per_month_minus' => ($paymentPerMonth - $payment->jumlah_bayar),
+                    'payment_per_month_minus_formatted' => Main::rupiahCurrency(($paymentPerMonth - $payment->jumlah_bayar)),
+                ];
+        }
+        
+        foreach(Main::genArray($data) as $index => $dt){
+            if(!is_array($dt)){
+                $data[$index] = [
+                    'payment_month' => intval($index),
+                    'payment_month_formatted' => Main::getMonth($index),
+                    'payment_total' => $sppData->nominal,
+                    'payment_total_formatted' => Main::rupiahCurrency($sppData->nominal),
+                    'payment_per_month' => $paymentPerMonth,
+                    'payment_per_month_formatted' => Main::rupiahCurrency($paymentPerMonth),
+                    'payment_per_month_minus' => $paymentPerMonth,
+                    'payment_per_month_minus_formatted' => Main::rupiahCurrency($paymentPerMonth)
+                ];
+            }
+        }
+
+        $sppDataWithPayment = [
+            'id' => Crypt::encrypt($sppData->id_spp),
+            'year' => $sppData->tahun,
+            'nominal_per_periode' => $sppData->nominal / 12,
+            'nominal_per_periode_formatted' => Main::rupiahCurrency($sppData->nominal / 12),
+            'nominal' => $sppData->nominal,
+            'nominal_formatted' => Main::rupiahCurrency($sppData->nominal),
+            'periode' => 12,
+            'steps' => Main::classStepsFilter($sppData->step->tingkatan),
+            'payment_data' => $data
+        ];
+        
+        return Main::generateAPI($sppDataWithPayment);
+    }
+
     public function api_addToCartTransaction(Request $request)
     {
         if(!$request->ajax()) abort(404);
@@ -166,7 +229,7 @@ class TransactionController extends Controller
             'spp_id' => 'required',
             't_code' => 'required',
             's_id' => 'required',
-            'nominal' => 'required|numeric',
+            'nominal' => 'required|numeric|min:1',
             'month' => 'required|numeric|min:1|max:12'
         ]);
 

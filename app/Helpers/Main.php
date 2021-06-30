@@ -160,7 +160,7 @@ class Main{
             case 3 :
                 return 'Maret';
             case 4 :
-                return 'Apri';
+                return 'April';
             case 5 :
                 return 'Mei';
             case 6 :
@@ -203,12 +203,9 @@ class Main{
         $data->name = $user->student->nama;
         return $data;
     }
-
-    public function checkRole($role)
+    
+    public static function createTitle($title = "")
     {
-        $this->load->library('session');
-        if(!$this->session->userdata('role') == $role){
-            abort(404);
-        }
+        return "$title"." &mdash; ".config('site_vars.app_name');
     }
 }

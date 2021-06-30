@@ -45,9 +45,11 @@ class StudentsController extends Controller
      */
     public function index()
     {
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle('Data siswa');
         $data = $this->getClass();
         $userData = Main::getCurrectUserDetails();
-        return view('admin.students.index', compact('data', 'userData'));
+        return view('admin.students.index', compact('data', 'userData', 'pageData'));
     }
 
     public function studentsByClass($class)
@@ -56,14 +58,18 @@ class StudentsController extends Controller
         $class = Crypt::decrypt($class);
         $class = preg_replace('/[^0-9]/', '', $class) === "" ? null : intval(preg_replace('/[^0-9]/', '', $class));
         $perclass = $this->getClass($class);
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle("Data siswa kelas $perclass->class");
         $data = $this->getClass();
-        return view('admin.students.class_students', compact('perclass', 'data', 'userData'));
+        return view('admin.students.class_students', compact('perclass', 'data', 'userData', 'pageData'));
     }
 
     public function trash()
     {
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle('Keranjang sampah(Siswa)');
         $userData = Main::getCurrectUserDetails();
-        return view('admin.students.trashed', compact('userData'));
+        return view('admin.students.trashed', compact('userData', 'pageData'));
     }
 
 
@@ -75,9 +81,9 @@ class StudentsController extends Controller
 
             $data = new \stdClass();
             $data->class_id = Crypt::encrypt($class->id_kelas);
-            $data->class_competence = $class->kompetensi_keahlian;
+            $data->class_competence = $class->competence->kompetensi_keahlian;
             $data->class_name = $class->nama_kelas;
-            $data->class = Main::classStepsFilter($class->tingkatan)." ".$class->kompetensi_keahlian;
+            $data->class = Main::classStepsFilter($class->step->tingkatan)." ".$class->competence->kompetensi_keahlian;
 
             return $data;
         }else{
@@ -85,7 +91,6 @@ class StudentsController extends Controller
             
             $data = collect([]);
             foreach(Main::genArray($class) as $cls){
-                    
                 $data->push([
                     'class_id' => Crypt::encrypt($cls->id_kelas),
                     'class_competence' => $cls->competence->kompetensi_keahlian,
@@ -172,9 +177,7 @@ class StudentsController extends Controller
 
         $student->users->username = $request->student_username;
         $student->users->email = $request->student_email;
-        if(isset($request->student_password)){
-            $student->users->password = bcrypt($request->student_password);
-        }
+        if(isset($request->student_password)) $student->users->password = bcrypt($request->student_password);
         $student->nisn = $request->student_nisn;
         $student->nis = $request->student_nis;
         $student->nama = $request->student_name;

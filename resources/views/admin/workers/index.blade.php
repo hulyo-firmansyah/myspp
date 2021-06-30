@@ -528,7 +528,7 @@
                             , beforeSend: () => {
                                 loadingOverlay.css("display", "flex").fadeIn('fast')
                             }
-                            , success: function(result) {
+                            , success: function(res) {
                                 loadingOverlay.fadeOut('fast')
                                 let {
                                     data

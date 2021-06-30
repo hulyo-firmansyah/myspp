@@ -22,4 +22,9 @@ class SppModel extends Model
     {
         return $this->belongsTo(StepsModel::class, 'id_tingkatan', 'id_tingkatan');
     }
+
+    public function payments()
+    {
+        return $this->hasMany(PaymentModel::class, 'id_spp', 'id_spp');
+    }
 }

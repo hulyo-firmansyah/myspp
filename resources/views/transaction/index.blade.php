@@ -7,7 +7,31 @@
 @endsection
 @section('css_custom')
 <style>
+    #paymentTypeDetail>.table-responsive {
+        max-height: 250px;
+        overflow-y: scroll;
+    }
 
+    /* width */
+    #paymentTypeDetail>.table-responsive::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    /* Track */
+    #paymentTypeDetail>.table-responsive::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    /* Handle */
+    #paymentTypeDetail>.table-responsive::-webkit-scrollbar-thumb {
+        background-color: rgb(66, 66, 66);
+        border-radius: 1000px;
+    }
+
+    /* Handle on hover */
+    #paymentTypeDetail>.table-responsive::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
 </style>
 @endsection
 @section('content')
@@ -101,79 +125,86 @@
                                 disabled>
                         </div>
                     </div>
-                    <div class="col-12 col-md-4 col-lg-4">
-                        <label for="">Pilih Pembayaran</label>
-                        <div class="form-group">
-                            <select class="form-control" name="" id="paymentType">
-                                <option>- Loading -</option>
-                            </select>
-                            <small>* Kelas | Tahun Ajaran</small>
+                    <div class="col-12 col-lg-10">
+                        <label>Pilih Pembayaran</label>
+                        <div class="table-responsive" style="display: none;">
+                            <table class="table table-striped table-inverse" id="paymentTypeTable">
+                                <thead class="thead-inverse">
+                                    <tr>
+                                        <th>Tahun Ajaran</th>
+                                        <th>Tingkat</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="paymentTypeDetail" style="display:none">
+                            <h6 id="paymentTypeDetailTitle">Loading...</h6>
+                            <div class="table-responsive" style="display: none;">
+                                <table class="table table-striped table-inverse" id="paymentTypeDetailTable">
+                                    <thead class="thead-inverse">
+                                        <tr>
+                                            <th>Bulan</th>
+                                            <th>Tahun Ajaran</th>
+                                            <th>Tagihan</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <td colspan="4" class="text-center">Loading...</td>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-12 col-md-4 col-lg-3">
-                        <label for="">Bulan Dibayar</label>
-                        <div class="form-group">
-                            <select class="form-control" name="" id="paymentMonth">
-                                <option value="1">Januari</option>
-                                <option value="2">Februari</option>
-                                <option value="3">Maret</option>
-                                <option value="4">April</option>
-                                <option value="5">Mei</option>
-                                <option value="6">Juni</option>
-                                <option value="7">Juli</option>
-                                <option value="8">Agustus</option>
-                                <option value="9">September</option>
-                                <option value="10">Oktober</option>
-                                <option value="11">November</option>
-                                <option value="12">Desember</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-4 col-lg-3">
-                        <label for="">Tahun Dibayar</label>
-                        <input type="text" class="form-control" name="" value="" id="paymentYear" disabled>
-                    </div>
-                    <div class="col-12 col-md-12 col-lg-10 mt-3 mt-md-1">
-                        <div class="invoice">
+
+                    <div class="col-12 col-md-12 col-lg-10 mt-4">
+                        <div class="invoice" id="paymentInvoice" style="display: none;">
                             <div class="d-flex">
                                 <div class="invoice-detail-item mr-5">
-                                    <div class="invoice-detail-name">Periode Pembayaran</div>
-                                    <div class="invoice-detail-value" id="paymentPeriode">-</div>
+                                    <div class="invoice-detail-name">Bulan</div>
+                                    <div class="invoice-detail-value" id="paymentMonth">-</div>
                                 </div>
-                                <div class="invoice-detail-item ml-5">
-                                    <div class="invoice-detail-name">Biaya Per Periode(Per Bulan)</div>
-                                    <div class="invoice-detail-value" id="paymentPerPeriode">-</div>
+                                <div class="invoice-detail-item mr-5">
+                                    <div class="invoice-detail-name">Tingkat</div>
+                                    <div class="invoice-detail-value" id="paymentStep">-</div>
                                 </div>
                             </div>
                             <div class="invoice-detail-item">
-                                <div class="invoice-detail-name">Total Biaya</div>
-                                <div class="invoice-detail-value" id="paymentTotal">-</div>
-                                <small>* Total biaya semua periode(12 Bulan)</small>
+                                <div class="invoice-detail-name">Tahun Ajaran</div>
+                                <div class="invoice-detail-value" id="paymentYear">-</div>
                             </div>
-                            <div class="invoice-detail-item">
-                                <div class="invoice-detail-name">Kekurangan Bulan Ini</div>
-                                <div class="invoice-detail-value" id="paymentShortage">-</div>
-                            </div>
-                            <div class="invoice-detail-item">
-                                <div class="invoice-detail-name">Total Yang Harus Dibayar</div>
-                                <div class="invoice-detail-value invoice-detail-value-lg" id="paymentFinal">-
+                            <div class="d-flex">
+                                <div class="invoice-detail-item mr-5">
+                                    <div class="invoice-detail-name">Biaya Per Bulan</div>
+                                    <div class="invoice-detail-value" id="paymentPerMonthNominal">-</div>
+                                </div>
+                                <div class="invoice-detail-item">
+                                    <div class="invoice-detail-name">Kekurangan</div>
+                                    <div class="invoice-detail-value" id="paymentMinus">Rp. 0</div>
                                 </div>
                             </div>
+                            <div class="invoice-detail-item">
+                                <div class="invoice-detail-name">Total</div>
+                                <div class="invoice-detail-value invoice-detail-value-lg" id="paymentTotal">Rp. 0
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="paymentInput">Bayar</label>
+                                <input type="text" class="form-control" id="paymentInput">
+                            </div>
+                            <div class="invoice-detail-item">
+                                <div class="invoice-detail-name">Kembalian</div>
+                                <div class="invoice-detail-value invoice-detail-value-lg" id="paymentReturn">Rp. 0
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-block" id="addToTransaction"><i class="fa fa-cart-plus"
+                                    aria-hidden="true"></i>
+                                Tambahkan Ke Keranjang</button>
                         </div>
-                    </div>
-                    <div class="col-12 col-md-12 col-lg-10">
-                        <div class="form-group row align-items-center">
-                            <h5 class="form-control-label col-sm-2 m-0">Jumlah Bayar</h5>
-                            <div class="col-sm-10">
-                                <input type="text" name="site_title" id="paymentForm"
-                                    class="form-control bg-dark text-white" id="totalPayment" disabled>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-8 offset-md-2">
-                        <button class="btn btn-primary" id="addToTransaction" disabled><i class="fa fa-plus"
-                                aria-hidden="true"></i> Tambah
-                            Transaksi</button>
                     </div>
 
                     <div class="col-12 col-md-12 col-lg-10 mt-4">
@@ -198,7 +229,7 @@
                                         </tbody>
                                     </table>
                                     <div class="d-flex justify-content-end mt-4">
-                                        <button class="btn btn-success" type="submit"><i class="fas fa-dollar-sign"></i>
+                                        <button class="btn btn-primary" type="submit"><i class="fas fa-credit-card"></i>
                                             Cash
                                             Checkout</button>
                                     </div>
@@ -241,13 +272,26 @@
             , 'student_name': '#paymentSName'
             , 'student_class': '#paymentSClass'
             , 'payment_type': '#paymentType'
+
+            , 'payment_type_table': '#paymentTypeTable'
+            , 'payment_type_detail': '#paymentTypeDetail'
+            , 'payment_type_detail_title': '#paymentTypeDetailTitle'
+            , 'payment_type_detail_table': '#paymentTypeDetailTable'
+
+            //Button
+            , 'payment_get_related_detail_button': '.get-related-payment-detail'
+            , 'payment_type_select_button': '.select-payment-type'
+
+            , 'payment_invoice': '#paymentInvoice'
+
             , 'payment_month': '#paymentMonth'
+            , 'payment_step': '#paymentStep'
             , 'payment_year': '#paymentYear'
-            , 'payment_periode': '#paymentPeriode'
-            , 'payment_per_periode': '#paymentPerPeriode'
+            , 'payment_per_month': '#paymentPerMonthNominal'
+            , 'payment_minus': '#paymentMinus'
+            , 'payment_return': '#paymentReturn'
             , 'payment_total': '#paymentTotal'
-            , 'payment_shortage': '#paymentShortage'
-            , 'payment_final': '#paymentFinal'
+            , 'payment_total_input': '#paymentInput'
             , 'payment_form': '#paymentForm'
         }
 
@@ -259,17 +303,34 @@
             transactionCart.slideUp('slow').hide('slow')
             transactionTable.children('tbody').html('')
         }
+        const paymentTypeReset = () => {
+            $(paymentField.payment_type_table).find('tbody').html('')
+            $(paymentField.payment_type_table).closest('.table-responsive').slideUp('slow')
+
+            $(paymentField.payment_type_detail_title).text(`Loading...`)
+            $(paymentField.payment_type_detail).slideUp('slow')
+        }
         const paymentInvoiceReset = () => {
             // $(paymentField.payment_month).val('1').change()
-            $(paymentField.payment_month).val("1")
-            $(paymentField.payment_year).val('')
-            $(paymentField.payment_periode).text('-')
-            $(paymentField.payment_per_periode).text('-')
-            $(paymentField.payment_total).text('-')
-            $(paymentField.payment_shortage).text('-')
-            $(paymentField.payment_final).text('-')
-            $(paymentField.payment_form).val('').attr('disabled', true)
-            addTransactionBtn.attr('disabled', true)
+            // $(paymentField.payment_month).val("1")
+            // $(paymentField.payment_year).val('')
+            // $(paymentField.payment_periode).text('-')
+            // $(paymentField.payment_per_periode).text('-')
+            // $(paymentField.payment_total).text('-')
+            // $(paymentField.payment_shortage).text('-')
+            // $(paymentField.payment_final).text('-')
+            // $(paymentField.payment_form).val('').attr('disabled', true)
+            // addTransactionBtn.attr('disabled', true)
+
+            $(paymentField.payment_invoice).slideUp('slow')
+            $(paymentField.payment_month).text('-')
+            $(paymentField.payment_step).text('-')
+            $(paymentField.payment_year).text('-')
+            $(paymentField.payment_per_month).text(rupiahCurrency(0))
+            $(paymentField.payment_minus).text(rupiahCurrency(0))
+            $(paymentField.payment_total).text(rupiahCurrency(0))
+            $(paymentField.payment_total_input).val(0)
+            $(paymentField.payment_return).text(rupiahCurrency(0))
         }
 
         const toastSuccessDelete = () => {
@@ -328,9 +389,12 @@
             't_code': null
             , 's_id': null
         }
-            , paymentType = {}
+            , paymentType
             , selectedPaymendIndex
-            , transactionCartData = {}
+            , transactionCartData
+            , paymentData
+            , nowPaymentData
+            , nowSelectedSPPDataElement
 
         /* End Variable Declaration */
 
@@ -349,10 +413,15 @@
 
             //reset payment content
             paymentContentResest()
+            //reset payment type(SPP TYPE)
+            paymentTypeReset()
             //reset payment invoice
             paymentInvoiceReset()
             //reset transaction cart content
             transactionCartContentReset()
+
+            //Remove invalid class on Bayar input
+            $(paymentField.payment_total_input).removeClass('is-invalid').next().remove()
 
             $.ajax({
                 url: `{{route('transaction.api.students.search')}}?q=${studentSField.val()}`
@@ -414,25 +483,31 @@
                         block.unblock()
                         //transactionCartData is variable for transaction table in the bottom
                         transactionCartData = data.transaction_cart
-                        console.table(transactionCartData, 'transaction_cart_data')
 
                         $(paymentField.payment_code).val(data.payment_code.toUpperCase())
                         $(paymentField.payment_date).val(data.payment_date)
                         $(paymentField.student_nisn).val(data.student_nisn)
                         $(paymentField.student_name).val(data.student_name)
                         $(paymentField.student_class).val(data.student_class)
-                        let temp = `<option selected disabled>Pilih pembayaran</option>`
                         transactionData.t_code = data.enc.t_code ?? null
                         transactionData.s_id = data.enc.s_id ?? null
                         $('#transactionCartCode').val(transactionData.t_code)
                         $('#transactionCartSId').val(transactionData.s_id)
+                        let paymentTypeTemp = ``
                         paymentType = data.payment_type
                         if (paymentType.length > 0) {
                             $.each(data.payment_type, function (i, v) {
-                                temp += `<option value="${i}"> SPP Kelas ${v.steps} | ${v.year} </option>`
+                                // paymentTypeTemp += `<option value="${i}"> SPP Kelas ${v.steps} | ${v.year} </option>`
+                                paymentTypeTemp += `
+                                <tr>
+                                    <td>${v.year}</td>
+                                    <td>${v.steps}</td>
+                                    <td><button class="btn btn-sm btn-primary get-related-payment-detail" title="Pilih" data-id="${v.id}"><i class="fa fa-plus" aria-hidden="true"></i></button></td>
+                                </tr>`
                             })
                         }
-                        $(paymentField.payment_type).html(temp)
+                        $(paymentField.payment_type_table).find('tbody').html(paymentTypeTemp)
+                        $(paymentField.payment_type_table).closest('.table-responsive').slideDown('slow')
 
                         /*Process for transaction cart
                         First check if "transactionCartData" variable is not null/undefined
@@ -463,79 +538,186 @@
                 }
             })
 
-            /*
-                Add to transaction cart(On bottom)
-            */
-            addTransactionBtn.on('click', function (e) {
-                transactionData.spp_id = paymentType[selectedPaymendIndex]?.id
-                transactionData.nominal = $(paymentField.payment_form)[0].inputmask.unmaskedvalue()
-                transactionData.month = $(paymentField.payment_month).val()
+        })
 
-                $(paymentField.payment_form).removeClass('is-invalid').next().remove()
-                const block = paymentDetails.block(blockDataWhite)
-                $.ajax({
-                    url: `{{route('transaction.api.add-to-cart-transaction')}}`
-                    , data: transactionData
-                    , method: 'post'
-                    , success: function (res) {
-                        const {
-                            status
-                            , length
-                            , data
-                        } = JSON.parse(res)
+        /*
+            Fired when Add button / Pilih button on Payment Type table got clicked
+            this will trigger function to AJAX related data to server and get payment details
+        */
+        $(paymentField.payment_type_table).unbind().on('click', paymentField.payment_get_related_detail_button, function (e) {
+
+            //Remove invalid class on Bayar input
+            $(paymentField.payment_total_input).removeClass('is-invalid').next().remove()
+
+            e.stopPropagation()
+            e.preventDefault()
+
+            const id = $(this).data('id')
+            // $(paymentField.payment_type_table).closest('.table-responsive').slideUp('slow')
+            // $(paymentField.payment_type_detail).slideDown('slow')
+
+            /*
+                Put the event target to variable for refresh on transaction add to cart
+            */
+            nowSelectedSPPDataElement = e.target
+
+            paymentInvoiceReset()
+
+            /*
+                This can prevent ajax to make spam request when user spamming their clicks
+            */
+            const status = $(this).closest('tbody')
+            if (status.data('requestRunning')) {
+                return
+            }
+            status.data('requestRunning', true)
+            const block = $(paymentField.payment_type_detail).block(blockDataWhite)
+            $.ajax({
+                url: `{{route('transaction.api.get.payment-type.details')}}/${id}`
+                , success: function (res) {
+                    const {
+                        status
+                        , length
+                        , data
+                    } = JSON.parse(res)
+                    if (status) {
                         block.unblock()
-                        if (status && length > 0 && data.length > 0) {
-                            let trstemp = ''
-                            $.each(data, (i, v) => {
-                                trstemp += `
+                        paymentData = data
+                        paymentType = data.payment_data
+                        $(paymentField.payment_type_detail_title).text(`SPP Kelas ${data.steps} Tahun ${data.year}`)
+                        $(paymentField.payment_type_detail).slideDown('slow')
+                        const table = $(paymentField.payment_type_detail_table)
+                        let paymentDetailTableTemp = ''
+                        $.each(data.payment_data, (i, v) => {
+                            paymentDetailTableTemp += `
                                 <tr>
-                                    <td>${++i}</td>
-                                    <td>${v.trs_month} ${v.trs_spp_steps} | ${v.trs_spp_year}</td>
-                                    <td>${v.trs_officer_name}</td>
-                                    <td>${v.trs_nominal_formatted}</td>
-                                    <td><button class="btn btn-danger remove-from-transaction-cart" title="Hapus" data-id="${v.trs_id}"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
-                                </tr>`
-                            })
-                            //Append to table
-                            transactionTable.children('tbody').html(trstemp)
-                            //Visible the table's parent
-                            transactionCart.slideDown('slow').show('slow')
-                            return false
-                        }
-                        //Print alert 'Keranjang pembayaran SPP pada bulan ini telah terisi, Apakah anda ingin mengubah nominal ? Ya : TIdak'
-                        return swal(`Warning`, 'Pembayaran pada bulan ini sudah terdapat dalam keranjang!\n Hapus data pembayaran dari keranjang transaksi yang dimaksud jika terjadi kesalahan input.', 'warning')
+                                    <td>${v.payment_month_formatted}</td>
+                                    <td>${data.year}</td>
+                                    <td>${v.payment_per_month_minus > 0 ? v.payment_per_month_minus_formatted : 'Lunas'}</td>
+                                    <td>${v.payment_per_month_minus > 0 ? `<button class="btn btn-sm select-payment-type ${v.payment_per_month_minus === v.payment_per_month ? 'btn-danger' : 'btn-primary'}" data-index=${i}>Select</button>` : '-'}</td>
+                                </tr>
+                            `
+                        })
+                        table.find('tbody').html(paymentDetailTableTemp)
+                        table.closest('.table-responsive').slideDown('slow')
                     }
-                    , error: function (err, status, msg) {
-                        block.unblock()
-                        const {
-                            errorStatus
-                            , responseJSON: {
-                                errors: errors
-                            }
-                        } = err
-                        if (errorStatus === 422) {
-                            if (errors.t_code || errors.s_id) {
-                                //print alert payment error
-                            }
-                            if (errors.spp_id) {
-                                $(paymentField.payment_type).addClass('is-invalid')
-                                $(`<div class="invalid-feedback">${errors.nominal[0]}</div>`).insertAfter($(paymentField.payment_type))
-                            }
-                            if (errors.nominal) {
-                                $(paymentField.payment_form).addClass('is-invalid')
-                                $(`<div class="invalid-feedback">${errors.nominal[0]}</div>`).insertAfter($(paymentField.payment_form))
-                            }
-                            return
-                        }
-                        return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
-                    }
-                })
+                }
+                , complete: function () {
+                    status.data('requestRunning', false)
+                }
+                , error: function (err, status, msg) {
+                    block.unblock()
+                    return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
+                }
             })
         })
 
+        /*
+            Add to transaction cart(On bottom)
+        */
+        addTransactionBtn.on('click', function (e) {
+
+            //Remove invalid class on Bayar input
+            $(paymentField.payment_total_input).removeClass('is-invalid').next().remove()
+
+            transactionData.spp_id = paymentData.id
+            transactionData.nominal = parseInt($(paymentField.payment_total_input)[0].inputmask.unmaskedvalue())
+            transactionData.nominal > nowPaymentData.payment_per_month_minus ? transactionData.nominal = nowPaymentData.payment_per_month_minus : transactionData.nominal
+            transactionData.month = nowPaymentData.payment_month
+
+            $(paymentField.payment_form).removeClass('is-invalid').next().remove()
+            const block = paymentDetails.block(blockDataWhite)
+            $.ajax({
+                url: `{{route('transaction.api.add-to-cart-transaction')}}`
+                , data: transactionData
+                , method: 'post'
+                , success: function (res) {
+                    const {
+                        status
+                        , length
+                        , data
+                    } = JSON.parse(res)
+                    block.unblock()
+                    if (status && length > 0 && data.length > 0) {
+                        nowSelectedSPPDataElement?.click()
+                        let trstemp = ''
+                        $.each(data, (i, v) => {
+                            trstemp += `
+                            <tr>
+                                <td>${++i}</td>
+                                <td>${v.trs_month} ${v.trs_spp_steps} | ${v.trs_spp_year}</td>
+                                <td>${v.trs_officer_name}</td>
+                                <td>${v.trs_nominal_formatted}</td>
+                                <td><button class="btn btn-danger remove-from-transaction-cart" title="Hapus" data-id="${v.trs_id}"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+                            </tr>`
+                        })
+                        //Append to table
+                        transactionTable.children('tbody').html(trstemp)
+                        //Visible the table's parent
+                        transactionCart.slideDown('slow').show('slow')
+                        return false
+                    }
+                    //Print alert 'Keranjang pembayaran SPP pada bulan ini telah terisi, Apakah anda ingin mengubah nominal ? Ya : TIdak'
+                    return swal(`Warning`, 'Pembayaran pada bulan ini sudah terdapat dalam keranjang!\n Hapus data pembayaran dari keranjang transaksi yang dimaksud jika terjadi kesalahan input.', 'warning')
+                }
+                , error: function (err, status, msg) {
+                    block.unblock()
+                    const {
+                        errorStatus
+                        , responseJSON: {
+                            errors: errors
+                        }
+                    } = err
+
+                    if (err.status === 422) {
+                        if (errors.nominal) {
+                            $(paymentField.payment_total_input).addClass('is-invalid')
+                            $(`<div class="invalid-feedback">${errors.nominal[0]}</div>`).insertAfter($(paymentField.payment_total_input))
+                            return
+                        }
+                    }
+                    return swal(`${status.toUpperCase()} ${err.status}`, msg, 'error')
+                }
+            })
+        })
         /*End Create*/
 
         /*Read*/
+        $(paymentField.payment_type_detail_table).unbind().on('click', paymentField.payment_type_select_button, function (e) {
+            e.preventDefault()
+
+            //Remove invalid class on Bayar input
+            $(paymentField.payment_total_input).removeClass('is-invalid').next().remove()
+
+            const index = $(this).data('index')
+            nowPaymentData = paymentType[index]
+
+            $(paymentField.payment_month).text(nowPaymentData.payment_month_formatted)
+            $(paymentField.payment_step).text(paymentData.steps)
+            $(paymentField.payment_year).text(paymentData.year)
+            $(paymentField.payment_per_month).text(nowPaymentData.payment_per_month_formatted)
+            $(paymentField.payment_minus).text(nowPaymentData.payment_per_month_minus_formatted)
+            $(paymentField.payment_total).text(nowPaymentData.payment_per_month_minus_formatted)
+            $(paymentField.payment_total_input).inputmask({
+                'alias': 'decimal'
+                , 'groupSeparator': ','
+                , 'autoGroup': true
+                , 'prefix': 'Rp. '
+                , 'rightAlign': false
+                , min: 0
+            })
+
+            $(paymentField.payment_invoice).slideDown('slow')
+        })
+        /*
+            For Payment Return
+        */
+        $(paymentField.payment_invoice).unbind().on('keyup', paymentField.payment_total_input, function (e) {
+            const value = parseInt(e.target.inputmask.unmaskedvalue())
+            let paymentReturn = value - nowPaymentData.payment_per_month_minus
+
+            $(paymentField.payment_return).text(paymentReturn > 0 ? rupiahCurrency(paymentReturn) : rupiahCurrency(0))
+        })
         /*End Read*/
 
         /*Update*/

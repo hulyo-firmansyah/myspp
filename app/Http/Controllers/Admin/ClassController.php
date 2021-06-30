@@ -61,17 +61,21 @@ class ClassController extends Controller
      */
     public function index()
     {
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle('Data kelas');
         $userData = Main::getCurrectUserDetails();
         $classData = new \stdClass();
         $classData->steps = $this->getSteps()->toArray();
         $classData->competence = $this->getCompetence()->toArray();
-        return view('admin.class.index', compact('userData', 'classData'));
+        return view('admin.class.index', compact('userData', 'classData', 'pageData'));
     }
 
     public function trash()
     {
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle('Keranjang sampah(Kelas)');
         $userData = Main::getCurrectUserDetails();
-        return view('admin.class.trashed', compact('userData'));
+        return view('admin.class.trashed', compact('userData', 'pageData'));
     }
 
     

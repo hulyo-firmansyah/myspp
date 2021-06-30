@@ -42,7 +42,6 @@
     </div>
 
 </div>
-
 @endsection
 @section('js_lib')
 <script src="/modules/datatables/datatables.min.js"></script>
@@ -56,11 +55,11 @@
 @endsection
 @section('js_custom')
 <script>
-    $(document).ready(function () {
-        /*
+    /*
             Element variable declaration
         */
-        const historyTable = $('#transactionHistoryTable')
+    const historyTable = $('#transactionHistoryTable')
+    $(document).ready(function() {
 
 
         /*
@@ -76,68 +75,7 @@
         /*End Create*/
 
         /*Read*/
-        const historyDataTable = historyTable.dataTable({
-            ajax: {
-                'url': "{{route('history.api.get.history')}}"
-                , 'dataSrc': 'data'
-            }
-            //, "sDom": '<"#dataTablesTopContainer"Tfr>t'
-            , 'columns': [{
-                title: "<input type='checkbox' id='historyCheckbox'>"
-                , "data": null
-                , orderable: false
-                , "render": function (itemdata) {
-                    return `<input type='checkbox' class="history-checkbox" data-id=${itemdata.id}>`
-                }
-            }
-                , {
-                title: 'Kode'
-                , 'data': null
-                , "render": (item) => {
-                    return `${item.transaction_code.toUpperCase()}`
-                }
-            }
-                , {
-                title: 'Petugas'
-                , 'data': 'worker.name'
-            }
-                , {
-                title: 'NISN'
-                , 'data': 'student.nisn'
-            }
-                , {
-                title: 'Siswa'
-                , 'data': 'student.name'
-            }
-                , {
-                title: 'Bulan Bayar'
-                , 'data': 'payment_month'
-            }
-                , {
-                title: 'Tanggal Pembayaran'
-                , 'data': 'created_at'
-            }
-                , {
-                title: 'Jumlah Bayar'
-                , 'data': 'payment_nominal_formatted'
-            }
-                , {
-                title: 'Jenis Pembayaran'
-                , 'data': 'payment_type'
-            }
-                , {
-                'data': null
-                , title: 'Action'
-                , wrap: true
-                , orderable: false
-                , "render": function (item) {
-                    // return `<button type="button" class="btn btn-primary btn-sm student-details-trigger" data-id=${item.id} data-toggle="modal" data-target="#studentDetails"><i class="fa fa-info-circle" aria-hidden="true"></i> Details</button>
-                    // <a href="/payment-history/print-report/${item.transaction_code}" target="_blank" rel="noopener noreferrer" class="btn btn-dark btn-sm student-details-trigger"><i class="fa fa-print" aria-hidden="true"></i> Print</a>`
-                    return `<a href="/payment-history/print-report/${item.transaction_code}" target="_blank" rel="noopener noreferrer" class="btn btn-dark btn-sm student-details-trigger"><i class="fa fa-print" aria-hidden="true"></i> Print</a>`
-                }
-            }
-            ]
-        })
+
 
         /* Refresh button fired */
         // $('#dataTablesRefreshBtn').on('click', function (e) { console.log(e); reportsDataTable.ajax.reload() })
@@ -157,4 +95,130 @@
     })
 
 </script>
+@if($userData->role === 'admin')
+<script>
+    $(document).ready(function() {
+        const historyDataTable = historyTable.dataTable({
+            ajax: {
+                'url': "{{route('history.api.get.history')}}"
+                , 'dataSrc': 'data'
+            }
+            //, "sDom": '<"#dataTablesTopContainer"Tfr>t'
+            , 'columns': [{
+                    title: "<input type='checkbox' id='historyCheckbox'>"
+                    , "data": null
+                    , orderable: false
+                    , "render": function(itemdata) {
+                        return `<input type='checkbox' class="history-checkbox" data-id=${itemdata.id}>`
+                    }
+                }
+                , {
+                    title: 'Kode'
+                    , 'data': null
+                    , "render": (item) => {
+                        return `${item.transaction_code.toUpperCase()}`
+                    }
+                }
+                , {
+                    title: 'Petugas'
+                    , 'data': 'worker.name'
+                }
+                , {
+                    title: 'NISN'
+                    , 'data': 'student.nisn'
+                }
+                , {
+                    title: 'Siswa'
+                    , 'data': 'student.name'
+                }
+                , {
+                    title: 'Bulan Bayar'
+                    , 'data': 'payment_month'
+                }
+                , {
+                    title: 'Tanggal Pembayaran'
+                    , 'data': 'created_at'
+                }
+                , {
+                    title: 'Jumlah Bayar'
+                    , 'data': 'payment_nominal_formatted'
+                }
+                , {
+                    title: 'Jenis Pembayaran'
+                    , 'data': 'payment_type'
+                }
+                , {
+                    'data': null
+                    , title: 'Action'
+                    , wrap: true
+                    , orderable: false
+                    , "render": function(item) {
+                        // return `<button type="button" class="btn btn-primary btn-sm student-details-trigger" data-id=${item.id} data-toggle="modal" data-target="#studentDetails"><i class="fa fa-info-circle" aria-hidden="true"></i> Details</button>
+                        // <a href="/payment-history/print-report/${item.transaction_code}" target="_blank" rel="noopener noreferrer" class="btn btn-dark btn-sm student-details-trigger"><i class="fa fa-print" aria-hidden="true"></i> Print</a>`
+                        return `<a href="/payment-history/print-report/${item.transaction_code}" target="_blank" rel="noopener noreferrer" class="btn btn-dark btn-sm student-details-trigger"><i class="fa fa-print" aria-hidden="true"></i> Print</a>`
+                    }
+                }
+            ]
+        })
+    })
+
+</script>
+@else
+<script>
+    $(document).ready(function() {
+        const historyDataTable = historyTable.dataTable({
+            ajax: {
+                'url': "{{route('history.api.get.history')}}"
+                , 'dataSrc': 'data'
+            }
+            //, "sDom": '<"#dataTablesTopContainer"Tfr>t'
+            , 'columns': [{
+                    title: "<input type='checkbox' id='historyCheckbox'>"
+                    , "data": null
+                    , orderable: false
+                    , "render": function(itemdata) {
+                        return `<input type='checkbox' class="history-checkbox" data-id=${itemdata.id}>`
+                    }
+                }
+                , {
+                    title: 'Kode'
+                    , 'data': null
+                    , "render": (item) => {
+                        return `${item.transaction_code.toUpperCase()}`
+                    }
+                }
+                , {
+                    title: 'Petugas'
+                    , 'data': 'worker.name'
+                }
+                , {
+                    title: 'NISN'
+                    , 'data': 'student.nisn'
+                }
+                , {
+                    title: 'Siswa'
+                    , 'data': 'student.name'
+                }
+                , {
+                    title: 'Bulan Bayar'
+                    , 'data': 'payment_month'
+                }
+                , {
+                    title: 'Tanggal Pembayaran'
+                    , 'data': 'created_at'
+                }
+                , {
+                    title: 'Jumlah Bayar'
+                    , 'data': 'payment_nominal_formatted'
+                }
+                , {
+                    title: 'Jenis Pembayaran'
+                    , 'data': 'payment_type'
+                }
+            ]
+        })
+    })
+
+</script>
+@endif
 @endsection

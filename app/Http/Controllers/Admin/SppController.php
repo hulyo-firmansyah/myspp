@@ -69,15 +69,20 @@ class SppController extends Controller
      */
     public function index()
     {
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle('Data SPP');
         $userData = Main::getCurrectUserDetails();
         $stepData = $this->getSteps();
-        return view('admin.spps.index', compact('userData', 'stepData'));
+        return view('admin.spps.index', compact('userData', 'stepData', 'pageData'));
     }
 
     public function trash()
     {
+        return abort(404);
+        $pageData = new \stdClass();
+        $pageData->title = Main::createTitle('Keranjang sampah(SPP)');
         $userData = Main::getCurrectUserDetails();
-        return view('admin.spps.trashed', compact('userData'));
+        return view('admin.spps.trashed', compact('userData', 'pageData'));
     }
 
     //pilih pembayaran : Pembayaran spp kelas XXXX Tahun XXXX
@@ -101,6 +106,8 @@ class SppController extends Controller
                 // 'nominal_per_steps_formatted' => Main::rupiahCurrency($spp->nominal / $spp->periode), // ino juga
                 'nominal' => $spp->nominal,
                 'nominal_formatted' => Main::rupiahCurrency($spp->nominal),
+                'nominal_per_month' => $spp->nominal / 12,
+                'nominal_per_month_formatted' => Main::rupiahCurrency($spp->nominal / 12),
                 // 'periode' => $spp->periode,
                 'steps' => $this->getSteps($spp->step->id_tingkatan),
                 'created_at' => Carbon::parse($spp->created_at)->format('d-m-Y'),
@@ -154,7 +161,7 @@ class SppController extends Controller
 
         $spp = new SppModel();
         $spp->tahun = $request->year;
-        $spp->nominal = intval($request->nominal);
+        $spp->nominal = (intval($request->nominal) * 12);
         $spp->id_tingkatan = $steps;
         $spp->save();
 
@@ -198,7 +205,7 @@ class SppController extends Controller
         
         $spp = SppModel::findOrFail($id);
         $spp->tahun = $request->year;
-        $spp->nominal = intval($request->nominal);
+        $spp->nominal = (intval($request->nominal) * 12);
         // $spp->periode = $request->periode;
         $steps = Crypt::decrypt($request->steps);
         $steps = preg_replace('/[^0-9]/', '', $steps) === "" ? null : intval(preg_replace('/[^0-9]/', '', $steps));

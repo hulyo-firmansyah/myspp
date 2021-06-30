@@ -23,7 +23,9 @@ class HomeController extends Controller
     {
         $userData = Main::getCurrectUserDetails();
         $pageData = new \stdClass();
+        $pageData->title = Main::createTitle('Dashboard Admin');
         $pageData->workerTotal = 0;
+
         $workers = AdminModel::with('userWorker')->get();
         foreach(Main::genArray($workers) as $wrk){
             if(isset($wrk->userWorker)){

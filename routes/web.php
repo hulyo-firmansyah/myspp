@@ -66,6 +66,24 @@ Route::prefix('admin')->name('a.')->group(function(){
         });
     });
 
+    Route::prefix('/competences')->name('competence.')->group(function(){
+        Route::get('/', 'Admin\CompetenceConroller@index')->name('index');
+
+        Route::get('/trash', 'Admin\CompetenceConroller@trash')->name('trash');
+        Route::prefix('/api')->name('api.')->group(function(){
+            Route::get('/get', 'Admin\CompetenceConroller@api_get')->name('get');
+            Route::get('/get-details/{id}', 'Admin\CompetenceConroller@api_getDetails')->name('get_details');
+
+            Route::post('/store', 'Admin\CompetenceConroller@api_store')->name('store');
+            Route::put('/update/{id}', 'Admin\CompetenceConroller@api_update')->name('update');
+            Route::delete('/delete-selected', 'Admin\CompetenceConroller@api_deleteSelected')->name('delete');
+            
+            Route::get('/get/trash', 'Admin\CompetenceConroller@api_getTrashed')->name('get.trash');
+            Route::put('/restore-selected', 'Admin\CompetenceConroller@api_restoreSelected')->name('restore');
+            Route::delete('/force-delete', 'Admin\CompetenceConroller@api_forceDeleteSelected')->name('force-delete');
+        });
+    });
+
     Route::prefix('/class')->name('class.')->group(function(){
         Route::get('/', 'Admin\ClassController@index')->name('index');
 
@@ -111,6 +129,7 @@ Route::prefix('/transaction')->name('transaction.')->group(function(){
     Route::prefix('/api')->name('api.')->group(function(){
         Route::get('/student/search/{q?}', 'Transaction\TransactionController@api_searchStudent')->name('students.search');
         Route::get('/get-transaction/{id?}', 'Transaction\TransactionController@api_getTransaction')->name('get.transaction');
+        Route::get('/get-payment-type-details/{id?}', 'Transaction\TransactionController@api_getPaymentTypeDetails')->name('get.payment-type.details');
 
         Route::post('/add-to-cart', 'Transaction\TransactionController@api_addToCartTransaction')->name('add-to-cart-transaction');
         Route::delete('/remove-from-cart/{id?}', 'Transaction\TransactionController@api_removeFromCartTransaction')->name('remove-from-cart-transaction');
